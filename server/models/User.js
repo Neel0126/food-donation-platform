@@ -22,6 +22,14 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String
+  },
+  address: {
+    type: String,
+    default: ''
+  },
+  isVerified: {
+    type: Boolean,
+    default: true // Donors & Volunteers are verified by default; NGOs set to false on registration
   }
 }, { timestamps: true });
 
