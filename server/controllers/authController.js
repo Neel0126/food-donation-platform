@@ -180,8 +180,11 @@ const updateUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
+      if (req.body.email && req.body.email !== user.email) {
+        return res.status(400).json({ message: 'Email address cannot be changed.' });
+      }
+
       user.name = req.body.name || user.name;
-      user.email = req.body.email || user.email;
       user.phone = req.body.phone || user.phone;
       user.address = req.body.address || user.address;
 
@@ -197,7 +200,15 @@ const updateUserProfile = async (req, res) => {
         const ngoProfile = await NgoProfile.findOne({ user: user._id });
         if (ngoProfile) {
            ngoProfile.organizationName = req.body.organizationName || ngoProfile.organizationName;
-           ngoProfile.registrationNumber = req.body.registrationNumber || ngoProfile.registrationNumber;
+           
+           // Prevent updating registration number if already verified
+           if (req.body.registrationNumber && req.body.registrationNumber !== ngoProfile.registrationNumber) {
+             if (ngoProfile.verificationStatus === 'approved') {
+               return res.status(400).json({ message: 'Cannot change registration number after NGO is verified.' });
+             }
+             ngoProfile.registrationNumber = req.body.registrationNumber;
+           }
+
            await ngoProfile.save();
            
            additionalData = {
