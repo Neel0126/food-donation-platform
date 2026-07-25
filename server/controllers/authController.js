@@ -64,7 +64,11 @@ const registerUser = async (req, res) => {
           role: user.role,
           address: user.address,
           isVerified: user.isVerified,
-          ...(role === 'ngo' && { organizationName, registrationNumber })
+          ...(role === 'ngo' && { 
+            organizationName, 
+            registrationNumber,
+            verificationStatus: 'pending' 
+          })
         }
       });
     } else {
@@ -96,7 +100,8 @@ const loginUser = async (req, res) => {
         if (ngoProfile) {
            additionalData = {
               organizationName: ngoProfile.organizationName,
-              registrationNumber: ngoProfile.registrationNumber
+              registrationNumber: ngoProfile.registrationNumber,
+              verificationStatus: ngoProfile.verificationStatus
            };
         }
       }
@@ -140,7 +145,8 @@ const getUserProfile = async (req, res) => {
         if (ngoProfile) {
            additionalData = {
               organizationName: ngoProfile.organizationName,
-              registrationNumber: ngoProfile.registrationNumber
+              registrationNumber: ngoProfile.registrationNumber,
+              verificationStatus: ngoProfile.verificationStatus
            };
         }
       }
@@ -196,7 +202,8 @@ const updateUserProfile = async (req, res) => {
            
            additionalData = {
               organizationName: ngoProfile.organizationName,
-              registrationNumber: ngoProfile.registrationNumber
+              registrationNumber: ngoProfile.registrationNumber,
+              verificationStatus: ngoProfile.verificationStatus
            };
         }
       }

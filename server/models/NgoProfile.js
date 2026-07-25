@@ -4,7 +4,8 @@ const ngoProfileSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    unique: true
   },
   organizationName: {
     type: String,
@@ -12,14 +13,15 @@ const ngoProfileSchema = new mongoose.Schema({
   },
   registrationNumber: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   address: {
     street: String,
     city: String,
     state: String,
     zipCode: String,
-    country: String
+    country: { type: String, default: 'India' }
   },
   description: {
     type: String
@@ -27,9 +29,10 @@ const ngoProfileSchema = new mongoose.Schema({
   website: {
     type: String
   },
-  isVerified: {
-    type: Boolean,
-    default: false
+  verificationStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
   }
 }, { timestamps: true });
 
