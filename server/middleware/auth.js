@@ -26,6 +26,15 @@ const protect = async (req, res, next) => {
         return res.status(401).json({ message: 'User not found' });
       }
 
+      // If user is an NGO, attach their profile's verification status
+      if (req.user.role === 'ngo') {
+        const NgoProfile = require('../models/NgoProfile');
+        const profile = await NgoProfile.findOne({ user: req.user._id });
+        if (profile) {
+          req.user.verificationStatus = profile.verificationStatus;
+        }
+      }
+
       next();
     } catch (error) {
       console.error('Auth middleware error:', error.message);
