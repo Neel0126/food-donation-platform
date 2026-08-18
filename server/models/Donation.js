@@ -17,6 +17,14 @@ const donationSchema = new mongoose.Schema({
   description: {
     type: String
   },
+  imageUrl: {
+    type: String,
+    required: false
+  },
+  imagePublicId: {
+    type: String,
+    required: false
+  },
   pickupLocation: {
     street: String,
     city: String,
@@ -31,6 +39,10 @@ const donationSchema = new mongoose.Schema({
   acceptedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User' // NGO or Volunteer who accepted it
+  },
+  volunteerRequested: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 
