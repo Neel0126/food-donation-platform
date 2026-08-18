@@ -7,7 +7,7 @@ const NgoProfile = require('../models/NgoProfile');
  */
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
+    expiresIn: '7d',
   });
 };
 
@@ -64,10 +64,10 @@ const registerUser = async (req, res) => {
           role: user.role,
           address: user.address,
           isVerified: user.isVerified,
-          ...(role === 'ngo' && { 
-            organizationName, 
+          ...(role === 'ngo' && {
+            organizationName,
             registrationNumber,
-            verificationStatus: 'pending' 
+            verificationStatus: 'pending'
           })
         }
       });
@@ -92,17 +92,17 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
-      
+
       let additionalData = {};
-      
+
       if (user.role === 'ngo') {
         const ngoProfile = await NgoProfile.findOne({ user: user._id });
         if (ngoProfile) {
-           additionalData = {
-              organizationName: ngoProfile.organizationName,
-              registrationNumber: ngoProfile.registrationNumber,
-              verificationStatus: ngoProfile.verificationStatus
-           };
+          additionalData = {
+            organizationName: ngoProfile.organizationName,
+            registrationNumber: ngoProfile.registrationNumber,
+            verificationStatus: ngoProfile.verificationStatus
+          };
         }
       }
 
@@ -136,18 +136,18 @@ const loginUser = async (req, res) => {
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
-    
+
     if (user) {
       let additionalData = {};
-      
+
       if (user.role === 'ngo') {
         const ngoProfile = await NgoProfile.findOne({ user: user._id });
         if (ngoProfile) {
-           additionalData = {
-              organizationName: ngoProfile.organizationName,
-              registrationNumber: ngoProfile.registrationNumber,
-              verificationStatus: ngoProfile.verificationStatus
-           };
+          additionalData = {
+            organizationName: ngoProfile.organizationName,
+            registrationNumber: ngoProfile.registrationNumber,
+            verificationStatus: ngoProfile.verificationStatus
+          };
         }
       }
 
@@ -193,29 +193,29 @@ const updateUserProfile = async (req, res) => {
       }
 
       const updatedUser = await user.save();
-      
+
       let additionalData = {};
 
       if (user.role === 'ngo') {
         const ngoProfile = await NgoProfile.findOne({ user: user._id });
         if (ngoProfile) {
-           ngoProfile.organizationName = req.body.organizationName || ngoProfile.organizationName;
-           
-           // Prevent updating registration number if already verified
-           if (req.body.registrationNumber && req.body.registrationNumber !== ngoProfile.registrationNumber) {
-             if (ngoProfile.verificationStatus === 'approved') {
-               return res.status(400).json({ message: 'Cannot change registration number after NGO is verified.' });
-             }
-             ngoProfile.registrationNumber = req.body.registrationNumber;
-           }
+          ngoProfile.organizationName = req.body.organizationName || ngoProfile.organizationName;
 
-           await ngoProfile.save();
-           
-           additionalData = {
-              organizationName: ngoProfile.organizationName,
-              registrationNumber: ngoProfile.registrationNumber,
-              verificationStatus: ngoProfile.verificationStatus
-           };
+          // Prevent updating registration number if already verified
+          if (req.body.registrationNumber && req.body.registrationNumber !== ngoProfile.registrationNumber) {
+            if (ngoProfile.verificationStatus === 'approved') {
+              return res.status(400).json({ message: 'Cannot change registration number after NGO is verified.' });
+            }
+            ngoProfile.registrationNumber = req.body.registrationNumber;
+          }
+
+          await ngoProfile.save();
+
+          additionalData = {
+            organizationName: ngoProfile.organizationName,
+            registrationNumber: ngoProfile.registrationNumber,
+            verificationStatus: ngoProfile.verificationStatus
+          };
         }
       }
 

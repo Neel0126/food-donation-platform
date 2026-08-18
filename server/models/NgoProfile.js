@@ -29,6 +29,12 @@ const ngoProfileSchema = new mongoose.Schema({
   website: {
     type: String
   },
+  documentUrl: {
+    type: String
+  },
+  documentPublicId: {
+    type: String
+  },
   verificationStatus: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
