@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const donationRoutes = require('./routes/donationRoutes');
 const ngoRoutes = require('./routes/ngoRoutes');
 const volunteerRoutes = require('./routes/volunteerRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/ngos', ngoRoutes);
 app.use('/api/volunteers', volunteerRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Serve local uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
