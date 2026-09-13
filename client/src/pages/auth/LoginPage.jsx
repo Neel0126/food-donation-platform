@@ -166,9 +166,9 @@ const LoginPage = () => {
                     />
                     <span className="text-sm text-gray-600">Remember me</span>
                   </label>
-                  <span className="text-sm text-primary-600 font-medium cursor-pointer hover:text-primary-700 transition-colors duration-200">
+                  <Link to="/forgot-password" className="text-sm text-primary-600 font-medium cursor-pointer hover:text-primary-700 transition-colors duration-200 no-underline">
                     Forgot password?
-                  </span>
+                  </Link>
                 </div>
 
                 {/* Submit */}
