@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const NgoProfile = require('../models/NgoProfile');
 const VolunteerProfile = require('../models/VolunteerProfile');
+const crypto = require('crypto');
+const sendEmail = require('../utils/sendEmail');
 
 /**
  * Generate JWT Token
@@ -328,8 +330,109 @@ const updateUserProfile = async (req, res) => {
       res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
-    console.error('Profile update error:', error);
-    res.status(500).json({ message: 'Server error updating profile' });
+    console.error('Error in updateUserProfile:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Forgot password
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'There is no user with that email' });
+    }
+
+    // Get reset token
+    const resetToken = user.getResetPasswordToken();
+    await user.save({ validateBeforeSave: false });
+
+    // Create reset url
+    // In production, this should point to your frontend domain
+    const resetUrl = `${req.protocol}://${req.get('host').replace('3001', '5173')}/reset-password/${resetToken}`;
+
+    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Password reset token',
+        message,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <h2 style="color: #ea580c; text-align: center;">ShareBite Password Reset</h2>
+            <p>You requested a password reset for your ShareBite account.</p>
+            <p>Please click the button below to reset your password. This link will expire in 10 minutes.</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" style="background-color: #ea580c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Reset Password</a>
+            </div>
+            <p style="font-size: 12px; color: #64748b;">If you didn't request this, please ignore this email.</p>
+          </div>
+        `
+      });
+
+      res.status(200).json({ message: 'Email sent' });
+    } catch (err) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+      return res.status(500).json({ message: 'Email could not be sent' });
+    }
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Reset password
+// @route   PUT /api/auth/reset-password/:token
+// @access  Public
+const resetPassword = async (req, res) => {
+  try {
+    // Get hashed token
+    const resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+
+    if (!req.body.password || req.body.password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    }
+
+    // Set new password
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    // Log the user in and return token
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isVerified: user.isVerified
+      }
+    });
+  } catch (error) {
+    console.error('Error in resetPassword:', error);
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
@@ -338,4 +441,6 @@ module.exports = {
   loginUser,
   getUserProfile,
   updateUserProfile,
+  forgotPassword,
+  resetPassword,
 };

@@ -7,6 +7,8 @@ import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import UnauthorizedPage from './pages/auth/UnauthorizedPage';
 import NotFoundPage from './pages/auth/NotFoundPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 
 // Dashboard pages
 import DonorDashboard from './pages/dashboards/DonorDashboard';
@@ -51,6 +53,8 @@ function App() {
       <Route path="/" element={<RootHandler />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
       {/* Protected routes — require authentication */}
