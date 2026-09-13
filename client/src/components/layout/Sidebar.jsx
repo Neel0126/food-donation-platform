@@ -10,6 +10,7 @@ import {
   HiTruck,
   HiCog,
   HiShieldCheck,
+  HiExclamation,
   HiX,
 } from 'react-icons/hi';
 
@@ -40,6 +41,10 @@ const Sidebar = ({ isOpen, onClose }) => {
     ],
     admin: [
       { to: '/admin/dashboard', label: 'Dashboard', icon: HiHome },
+      { to: '/admin/dashboard', label: 'Users', icon: HiUserGroup, tab: 'users' },
+      { to: '/admin/dashboard', label: 'NGO Approvals', icon: HiShieldCheck, tab: 'ngos' },
+      { to: '/admin/dashboard', label: 'Donations', icon: HiClipboardList, tab: 'donations' },
+      { to: '/admin/dashboard', label: 'Complaints', icon: HiExclamation, tab: 'complaints' },
       { to: '/profile', label: 'My Profile', icon: HiUser },
     ],
   };
@@ -96,13 +101,19 @@ const Sidebar = ({ isOpen, onClose }) => {
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
+            const linkTo = item.tab
+              ? { pathname: item.to, search: `?tab=${item.tab}` }
+              : item.to;
+            const active = item.tab
+              ? location.pathname === item.to && location.search === `?tab=${item.tab}`
+              : isActive(item.to) && !location.search;
             return (
               <Link
-                key={item.to}
-                to={item.to}
+                key={item.label}
+                to={linkTo}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium no-underline transition-all duration-200 cursor-pointer ${
-                  isActive(item.to)
+                  active
                     ? 'bg-primary-50 text-primary-700 border-l-3 border-primary-500'
                     : 'text-gray-500 hover:bg-primary-50/60 hover:text-gray-800'
                 }`}
