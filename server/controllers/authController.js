@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const NgoProfile = require('../models/NgoProfile');
+const VolunteerProfile = require('../models/VolunteerProfile');
 
 /**
  * Generate JWT Token
@@ -17,7 +18,18 @@ const generateToken = (id) => {
  * @access  Public
  */
 const registerUser = async (req, res) => {
-  const { name, email, password, phone, role, organizationName, registrationNumber, address } = req.body;
+  const {
+    name,
+    email,
+    password,
+    phone,
+    role,
+    organizationName,
+    registrationNumber,
+    address,
+    vehicleType,
+    vehicleNumber
+  } = req.body;
 
   try {
     // Check if user exists
@@ -41,6 +53,8 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
+      let additionalData = {};
+
       // If role is NGO, create NGO profile
       if (role === 'ngo') {
         await NgoProfile.create({
@@ -48,9 +62,34 @@ const registerUser = async (req, res) => {
           organizationName,
           registrationNumber,
           address: {
-            street: address // Mapping the single address string to street for simplicity right now
+            street: address // Mapping the single address string to street for simplicity
           }
         });
+        additionalData = {
+          organizationName,
+          registrationNumber,
+          verificationStatus: 'pending'
+        };
+      }
+
+      // If role is Volunteer, create Volunteer profile
+      if (role === 'volunteer') {
+        const volunteerProfile = await VolunteerProfile.create({
+          user: user._id,
+          vehicleType: vehicleType || 'bike',
+          vehicleNumber: vehicleNumber || '',
+          address: {
+            street: address || ''
+          }
+        });
+        additionalData = {
+          vehicleType: volunteerProfile.vehicleType,
+          vehicleNumber: volunteerProfile.vehicleNumber,
+          availabilityStatus: volunteerProfile.availabilityStatus,
+          completedDeliveries: volunteerProfile.completedDeliveries,
+          activeDeliveries: volunteerProfile.activeDeliveries,
+          rating: volunteerProfile.rating
+        };
       }
 
       // Return same structure as login
@@ -64,11 +103,7 @@ const registerUser = async (req, res) => {
           role: user.role,
           address: user.address,
           isVerified: user.isVerified,
-          ...(role === 'ngo' && {
-            organizationName,
-            registrationNumber,
-            verificationStatus: 'pending'
-          })
+          ...additionalData
         }
       });
     } else {
@@ -92,7 +127,6 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
-
       let additionalData = {};
 
       if (user.role === 'ngo') {
@@ -104,6 +138,24 @@ const loginUser = async (req, res) => {
             verificationStatus: ngoProfile.verificationStatus
           };
         }
+      }
+
+      if (user.role === 'volunteer') {
+        let volunteerProfile = await VolunteerProfile.findOne({ user: user._id });
+        if (!volunteerProfile) {
+          volunteerProfile = await VolunteerProfile.create({
+            user: user._id,
+            address: { street: user.address || '' }
+          });
+        }
+        additionalData = {
+          vehicleType: volunteerProfile.vehicleType,
+          vehicleNumber: volunteerProfile.vehicleNumber,
+          availabilityStatus: volunteerProfile.availabilityStatus,
+          completedDeliveries: volunteerProfile.completedDeliveries,
+          activeDeliveries: volunteerProfile.activeDeliveries,
+          rating: volunteerProfile.rating
+        };
       }
 
       res.json({
@@ -149,6 +201,25 @@ const getUserProfile = async (req, res) => {
             verificationStatus: ngoProfile.verificationStatus
           };
         }
+      }
+
+      if (user.role === 'volunteer') {
+        let volunteerProfile = await VolunteerProfile.findOne({ user: user._id });
+        if (!volunteerProfile) {
+          volunteerProfile = await VolunteerProfile.create({
+            user: user._id,
+            address: { street: user.address || '' }
+          });
+        }
+        additionalData = {
+          vehicleType: volunteerProfile.vehicleType,
+          vehicleNumber: volunteerProfile.vehicleNumber,
+          availabilityStatus: volunteerProfile.availabilityStatus,
+          completedDeliveries: volunteerProfile.completedDeliveries,
+          activeDeliveries: volunteerProfile.activeDeliveries,
+          rating: volunteerProfile.rating,
+          emergencyContact: volunteerProfile.emergencyContact
+        };
       }
 
       res.json({
@@ -217,6 +288,30 @@ const updateUserProfile = async (req, res) => {
             verificationStatus: ngoProfile.verificationStatus
           };
         }
+      }
+
+      if (user.role === 'volunteer') {
+        let volunteerProfile = await VolunteerProfile.findOne({ user: user._id });
+        if (!volunteerProfile) {
+          volunteerProfile = new VolunteerProfile({ user: user._id });
+        }
+
+        if (req.body.vehicleType) volunteerProfile.vehicleType = req.body.vehicleType;
+        if (req.body.vehicleNumber !== undefined) volunteerProfile.vehicleNumber = req.body.vehicleNumber;
+        if (req.body.availabilityStatus) volunteerProfile.availabilityStatus = req.body.availabilityStatus;
+        if (req.body.emergencyContact) volunteerProfile.emergencyContact = req.body.emergencyContact;
+
+        await volunteerProfile.save();
+
+        additionalData = {
+          vehicleType: volunteerProfile.vehicleType,
+          vehicleNumber: volunteerProfile.vehicleNumber,
+          availabilityStatus: volunteerProfile.availabilityStatus,
+          completedDeliveries: volunteerProfile.completedDeliveries,
+          activeDeliveries: volunteerProfile.activeDeliveries,
+          rating: volunteerProfile.rating,
+          emergencyContact: volunteerProfile.emergencyContact
+        };
       }
 
       res.json({
