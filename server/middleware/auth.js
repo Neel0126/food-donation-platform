@@ -31,7 +31,14 @@ const protect = async (req, res, next) => {
         const NgoProfile = require('../models/NgoProfile');
         const profile = await NgoProfile.findOne({ user: req.user._id });
         if (profile) {
+          // If user.isVerified is true, ensure profile is also approved
+          if (req.user.isVerified && profile.verificationStatus !== 'approved') {
+            profile.verificationStatus = 'approved';
+            await profile.save();
+          }
           req.user.verificationStatus = profile.verificationStatus;
+        } else if (req.user.isVerified) {
+          req.user.verificationStatus = 'approved';
         }
       }
 

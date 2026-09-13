@@ -53,7 +53,10 @@ const createDonation = async (req, res) => {
 // @access  Private/Donor
 const getDonorDonations = async (req, res) => {
   try {
-    const donations = await Donation.find({ donor: req.user._id }).sort({ createdAt: -1 });
+    const donations = await Donation.find({ donor: req.user._id })
+      .populate('acceptedBy', 'name phone email')
+      .populate('assignedVolunteer', 'name phone email')
+      .sort({ createdAt: -1 });
     res.json(donations);
   } catch (error) {
     console.error('Error fetching donations:', error.message);
@@ -66,14 +69,17 @@ const getDonorDonations = async (req, res) => {
 // @access  Private/Donor (or NGO/Admin later)
 const getDonationById = async (req, res) => {
   try {
-    const donation = await Donation.findById(req.params.id);
+    const donation = await Donation.findById(req.params.id)
+      .populate('donor', 'name phone email address')
+      .populate('acceptedBy', 'name phone email')
+      .populate('assignedVolunteer', 'name phone email');
 
     if (!donation) {
       return res.status(404).json({ message: 'Donation not found' });
     }
 
     // Check if the user is authorized to view this
-    if (req.user.role === 'donor' && donation.donor.toString() !== req.user._id.toString()) {
+    if (req.user.role === 'donor' && donation.donor._id.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized to view this donation' });
     }
 
