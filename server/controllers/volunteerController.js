@@ -4,6 +4,8 @@ const NgoProfile = require('../models/NgoProfile');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const { generateOtp } = require('../utils/otpUtils');
+const sendEmail = require('../utils/sendEmail');
+const emailTemplates = require('../utils/emailTemplates');
 
 // @desc    Get volunteer profile
 // @route   GET /api/volunteers/profile
@@ -428,6 +430,17 @@ const verifyPickupOtp = async (req, res) => {
       type: 'donation_status',
       relatedDonation: task._id
     });
+
+    // Email notification (fire-and-forget)
+    const donorUser = await User.findById(task.donor);
+    if (donorUser?.email) {
+      const tpl = emailTemplates.donationPickedUp({
+        donorName: donorUser.name,
+        foodType: task.foodType,
+        volunteerName: req.user.name
+      });
+      sendEmail({ email: donorUser.email, subject: tpl.subject, html: tpl.html, message: tpl.text }).catch(() => {});
+    }
 
     const updatedTask = await Donation.findById(task._id)
       .select('-pickupOtp -deliveryOtp')

@@ -4,6 +4,8 @@ const VolunteerProfile = require('../models/VolunteerProfile');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const { generateOtp } = require('../utils/otpUtils');
+const sendEmail = require('../utils/sendEmail');
+const emailTemplates = require('../utils/emailTemplates');
 
 // @desc    Register NGO Profile & upload documents
 // @route   POST /api/ngos/register
@@ -161,12 +163,25 @@ const acceptDonation = async (req, res) => {
     donation.timeline.push({ status: 'accepted', description: 'Donation accepted by NGO' });
     await donation.save();
 
+    // In-app notification
     await Notification.create({
       user: donation.donor,
       message: 'Your donation has been accepted by an NGO.',
       type: 'donation_status',
       relatedDonation: donation._id
     });
+
+    // Email notification (fire-and-forget)
+    const donor = await User.findById(donation.donor);
+    if (donor?.email) {
+      const ngoName = ngoProfile?.organizationName || req.user.name || 'NGO Partner';
+      const tpl = emailTemplates.donationAccepted({
+        donorName: donor.name,
+        foodType: donation.foodType,
+        ngoName
+      });
+      sendEmail({ email: donor.email, subject: tpl.subject, html: tpl.html, message: tpl.text }).catch(() => {});
+    }
 
     res.json({
       message: 'Donation accepted successfully',
@@ -297,12 +312,37 @@ const assignVolunteer = async (req, res) => {
 
     await donation.save();
 
+    // In-app notifications
     await Notification.create({
       user: volunteer._id,
       message: 'You have been assigned to a new delivery task.',
       type: 'volunteer_assignment',
       relatedDonation: donation._id
     });
+    await Notification.create({
+      user: donation.donor,
+      message: `A volunteer (${volunteer.name}) has been assigned to pick up your donation.`,
+      type: 'donation_status',
+      relatedDonation: donation._id
+    });
+
+    // Email notifications (fire-and-forget)
+    const donorUser = await User.findById(donation.donor);
+    const volTpl = emailTemplates.volunteerAssigned({
+      recipientName: volunteer.name,
+      foodType: donation.foodType,
+      role: 'volunteer'
+    });
+    sendEmail({ email: volunteer.email, subject: volTpl.subject, html: volTpl.html, message: volTpl.text }).catch(() => {});
+    if (donorUser?.email) {
+      const donorTpl = emailTemplates.volunteerAssigned({
+        recipientName: donorUser.name,
+        foodType: donation.foodType,
+        volunteerName: volunteer.name,
+        role: 'donor'
+      });
+      sendEmail({ email: donorUser.email, subject: donorTpl.subject, html: donorTpl.html, message: donorTpl.text }).catch(() => {});
+    }
 
     // Update volunteer profile status to busy
     const volProfile = await VolunteerProfile.findOne({ user: volunteer._id });
@@ -357,12 +397,25 @@ const confirmDelivery = async (req, res) => {
     donation.timeline.push({ status: 'delivered', description: 'Donation marked as delivered by NGO' });
     await donation.save();
 
+    // In-app notification
     await Notification.create({
       user: donation.donor,
       message: 'Your donation has been delivered successfully!',
       type: 'donation_status',
       relatedDonation: donation._id
     });
+
+    // Email notification (fire-and-forget)
+    const deliveredDonor = await User.findById(donation.donor);
+    if (deliveredDonor?.email) {
+      const ngoProf = await NgoProfile.findOne({ user: req.user._id });
+      const tpl = emailTemplates.donationDelivered({
+        donorName: deliveredDonor.name,
+        foodType: donation.foodType,
+        ngoName: ngoProf?.organizationName || req.user.name
+      });
+      sendEmail({ email: deliveredDonor.email, subject: tpl.subject, html: tpl.html, message: tpl.text }).catch(() => {});
+    }
 
     res.json({
       message: 'Donation marked as delivered',
