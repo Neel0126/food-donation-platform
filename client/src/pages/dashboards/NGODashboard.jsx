@@ -386,11 +386,33 @@ const NGODashboard = () => {
                       : 'text-gray-600 hover:text-gray-800'
                   }`}
                 >
-                  {gettingLocation ? 'Locating...' : '🧭 Nearby (10km)'}
+                  {gettingLocation ? '📡 Locating...' : `🧭 Nearby (${maxDistance}km)`}
                 </button>
               </div>
             </div>
           </div>
+
+          {/* Distance Slider — only visible when Nearby mode is active */}
+          {locationScope === 'nearby' && (
+            <div className="bg-primary-50 border border-primary-100 rounded-xl px-5 py-3 mb-4 flex items-center gap-4 animate-fade-in-up">
+              <span className="text-xs font-semibold text-primary-700 shrink-0">📍 Radius:</span>
+              <input
+                type="range"
+                min={1}
+                max={50}
+                value={maxDistance}
+                onChange={(e) => setMaxDistance(Number(e.target.value))}
+                className="flex-1 accent-primary-600 cursor-pointer"
+                id="distance-slider"
+              />
+              <span className="text-xs font-bold text-primary-700 w-14 text-right shrink-0">{maxDistance} km</span>
+              {userLocation && (
+                <span className="text-[10px] text-primary-500 shrink-0">
+                  📌 GPS active
+                </span>
+              )}
+            </div>
+          )}
 
           {isLoading ? (
             <div className="p-12 text-center text-gray-400">Loading donations...</div>
