@@ -37,6 +37,17 @@ const donationSchema = new mongoose.Schema({
     state: String,
     zipCode: String
   },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point'
+    },
+    coordinates: {
+      type: [Number],
+      default: [0, 0] // [longitude, latitude]
+    }
+  },
   status: {
     type: String,
     enum: ['pending', 'accepted', 'assigned', 'picked_up', 'delivered', 'cancelled'],
@@ -96,8 +107,18 @@ const donationSchema = new mongoose.Schema({
     score: Number,
     feedback: String,
     ratedAt: Date
-  }
+  },
+  timeline: [
+    {
+      status: { type: String, required: true },
+      description: { type: String, required: true },
+      time: { type: Date, default: Date.now }
+    }
+  ]
 }, { timestamps: true });
+
+// Create a 2dsphere index for the location field
+donationSchema.index({ location: '2dsphere' });
 
 const Donation = mongoose.model('Donation', donationSchema);
 module.exports = Donation;

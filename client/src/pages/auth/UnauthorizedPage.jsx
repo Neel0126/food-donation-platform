@@ -10,7 +10,7 @@ const UnauthorizedPage = () => {
   const { user, isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#fff7ed] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center px-4 font-sans">
       <div className="text-center max-w-md animate-fade-in-up">
         <div className="mx-auto h-16 w-16 rounded-2xl bg-red-50 flex items-center justify-center mb-4 animate-scale-in">
           <HiShieldExclamation size={32} className="text-red-500" />

@@ -47,12 +47,16 @@ const NGODashboard = () => {
   const [ratingFeedback, setRatingFeedback] = useState('');
 
   // Proximity & Location Filtering State
-  const [locationScope, setLocationScope] = useState('all'); // 'my_city' | 'all'
+  const [locationScope, setLocationScope] = useState('all'); // 'my_city' | 'all' | 'nearby'
   const [searchQuery, setSearchQuery] = useState('');
+  const [userLocation, setUserLocation] = useState(null);
+  const [gettingLocation, setGettingLocation] = useState(false);
+  const [maxDistance, setMaxDistance] = useState(10); // km
 
   useEffect(() => {
+    if (locationScope === 'nearby' && !userLocation) return;
     fetchData();
-  }, [locationScope]);
+  }, [locationScope, userLocation, maxDistance]);
 
   const fetchData = async () => {
     try {
@@ -60,6 +64,11 @@ const NGODashboard = () => {
       const params = {};
       if (locationScope === 'my_city') {
         params.all = 'false';
+      } else if (locationScope === 'nearby' && userLocation) {
+        params.all = 'true'; // Override city filter
+        params.lat = userLocation.lat;
+        params.lng = userLocation.lng;
+        params.maxDistance = maxDistance;
       } else {
         params.all = 'true';
       }
@@ -85,6 +94,30 @@ const NGODashboard = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchData();
+  };
+
+  const handleNearbyClick = () => {
+    if (userLocation) {
+      setLocationScope('nearby');
+      return;
+    }
+    setGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+        setLocationScope('nearby');
+        setGettingLocation(false);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        showFeedback('Could not get location. Falling back to all locations.', 'error');
+        setGettingLocation(false);
+        setLocationScope('all');
+      }
+    );
   };
 
   const showFeedback = (text, type = 'success') => {
@@ -247,13 +280,13 @@ const NGODashboard = () => {
           return (
             <div
               key={stat.label}
-              className={`bg-white rounded-2xl border border-primary-100 p-5 flex items-center gap-4 hover:shadow-md transition-all animate-fade-in-up animate-stagger-${i + 1}`}
+              className={`bg-white rounded-3xl border border-[#e6ded3] p-5 flex items-center gap-4 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-900/5 transition-all animate-fade-in-up animate-stagger-${i + 1}`}
             >
-              <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${stat.color}`}>
+              <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 ${stat.color}`}>
                 <Icon size={22} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>{stat.value}</p>
+                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>{stat.value}</p>
                 <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
               </div>
             </div>
@@ -342,7 +375,18 @@ const NGODashboard = () => {
                       : 'text-gray-600 hover:text-gray-800'
                   }`}
                 >
-                  📍 My Registered City
+                  📍 My City
+                </button>
+                <button
+                  onClick={handleNearbyClick}
+                  disabled={gettingLocation}
+                  className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    locationScope === 'nearby'
+                      ? 'bg-white text-primary-700 shadow-xs'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  {gettingLocation ? 'Locating...' : '🧭 Nearby (10km)'}
                 </button>
               </div>
             </div>

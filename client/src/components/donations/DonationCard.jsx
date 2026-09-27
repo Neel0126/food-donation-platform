@@ -1,6 +1,8 @@
-import { HiLocationMarker, HiClock, HiKey, HiUser, HiPhone } from 'react-icons/hi';
+import { useState } from 'react';
+import { HiLocationMarker, HiClock, HiKey, HiUser, HiPhone, HiChevronDown, HiChevronUp } from 'react-icons/hi';
 
-const DonationCard = ({ donation, onEdit, onCancel }) => {
+const DonationCard = ({ donation, onEdit, onCancel, userLocation }) => {
+  const [showTimeline, setShowTimeline] = useState(false);
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending': return 'bg-amber-50 text-amber-700 border border-amber-200';
@@ -22,8 +24,27 @@ const DonationCard = ({ donation, onEdit, onCancel }) => {
     return url;
   };
 
+  // Haversine formula to calculate distance in km
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // Distance in km
+    return d.toFixed(1);
+  };
+
+  const distance = userLocation && donation.location?.coordinates?.length === 2
+    ? calculateDistance(userLocation.lat, userLocation.lng, donation.location.coordinates[1], donation.location.coordinates[0])
+    : null;
+
   return (
-    <div className="bg-white rounded-2xl border border-primary-100 overflow-hidden hover:shadow-lg hover:shadow-primary-600/8 transition-all duration-300 hover:-translate-y-1">
+    <div className="bg-white rounded-3xl border border-[#e6ded3] overflow-hidden hover:border-primary-300 hover:shadow-xl hover:shadow-primary-900/8 transition-all duration-300 hover:-translate-y-1">
       {donation.imageUrl ? (
         <div className="relative overflow-hidden">
           <img src={getImageUrl(donation.imageUrl)} alt={donation.foodType} className="w-full h-48 object-cover transition-transform duration-500 hover:scale-105" />
@@ -55,6 +76,7 @@ const DonationCard = ({ donation, onEdit, onCancel }) => {
             <HiLocationMarker className="mt-0.5 mr-1.5 shrink-0 text-primary-400" />
             <span>
               {donation.pickupLocation?.street}, {donation.pickupLocation?.city}
+              {distance && <span className="ml-2 font-semibold text-primary-600">({distance} km away)</span>}
             </span>
           </div>
           <div className="flex items-center text-sm text-gray-500">
@@ -110,6 +132,37 @@ const DonationCard = ({ donation, onEdit, onCancel }) => {
           <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-xs text-green-700 flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-green-500"></span>
             Delivered successfully! Thank you for reducing food waste.
+          </div>
+        )}
+
+        {/* Timeline Toggle */}
+        {donation.timeline && donation.timeline.length > 0 && (
+          <div className="mb-4">
+            <button
+              onClick={() => setShowTimeline(!showTimeline)}
+              className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-primary-600 transition-colors cursor-pointer"
+            >
+              {showTimeline ? <HiChevronUp size={16} /> : <HiChevronDown size={16} />}
+              {showTimeline ? 'Hide Timeline' : 'View Timeline'}
+            </button>
+            {showTimeline && (
+              <div className="mt-3 pl-2 space-y-3 relative before:absolute before:inset-0 before:ml-3.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent">
+                {donation.timeline.map((event, idx) => (
+                  <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full border border-white bg-primary-100 text-primary-600 shrink-0 shadow z-10">
+                      <div className="h-2 w-2 rounded-full bg-primary-500"></div>
+                    </div>
+                    <div className="w-[calc(100%-2.5rem)] md:w-[calc(50%-2.5rem)] pl-3 md:p-0">
+                      <div className="p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+                        <div className="font-semibold text-gray-800 capitalize mb-0.5">{event.status.replace('_', ' ')}</div>
+                        <div className="text-gray-500">{event.description}</div>
+                        <div className="text-gray-400 mt-1 text-[10px]">{new Date(event.time).toLocaleString()}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

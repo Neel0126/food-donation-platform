@@ -330,15 +330,15 @@ const VolunteerDashboard = () => {
             <div
               key={stat.label}
               onClick={stat.onClick}
-              className={`bg-white rounded-2xl border border-primary-100 p-5 flex items-center gap-4 transition-all animate-fade-in-up animate-stagger-${i + 1} ${
-                stat.isClickable ? 'cursor-pointer hover:border-indigo-300 hover:shadow-md' : 'hover:shadow-xs'
+              className={`bg-white rounded-3xl border border-[#e6ded3] p-5 flex items-center gap-4 transition-all hover:border-primary-300 hover:shadow-lg hover:shadow-primary-900/5 animate-fade-in-up animate-stagger-${i + 1} ${
+                stat.isClickable ? 'cursor-pointer hover:border-indigo-300' : ''
               }`}
             >
-              <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${stat.color}`}>
+              <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 ${stat.color}`}>
                 <Icon size={22} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>{stat.value}</p>
+                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>{stat.value}</p>
                 <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
               </div>
             </div>

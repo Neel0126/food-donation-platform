@@ -13,8 +13,69 @@ const CreateDonationModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
   });
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [locationObj, setLocationObj] = useState({ lat: null, lng: null });
+  const [gettingLocation, setGettingLocation] = useState(false);
+  const [locationError, setLocationError] = useState('');
 
   if (!isOpen) return null;
+
+  const handleGetLocation = () => {
+    setGettingLocation(true);
+    setLocationError('');
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setLocationObj({ lat, lng });
+
+          try {
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+            );
+            if (res.ok) {
+              const data = await res.json();
+              const addr = data.address || {};
+
+              const streetParts = [
+                addr.house_number,
+                addr.road || addr.street || addr.residential || addr.suburb || addr.neighbourhood
+              ].filter(Boolean);
+
+              const street = streetParts.length > 0 
+                ? streetParts.join(' ') 
+                : (data.name || '');
+
+              const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || addr.state_district || '';
+              const state = addr.state || '';
+              const zipCode = addr.postcode || '';
+
+              setFormData((prev) => ({
+                ...prev,
+                street: street || prev.street,
+                city: city || prev.city,
+                state: state || prev.state,
+                zipCode: zipCode || prev.zipCode
+              }));
+            }
+          } catch (err) {
+            console.warn('Reverse geocoding error:', err);
+          } finally {
+            setGettingLocation(false);
+          }
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          setLocationError('Could not get location. Please allow access.');
+          setGettingLocation(false);
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    } else {
+      setLocationError('Geolocation is not supported by your browser.');
+      setGettingLocation(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,6 +106,10 @@ const CreateDonationModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
     
     if (image) {
       data.append('image', image);
+    }
+    if (locationObj.lat && locationObj.lng) {
+      data.append('lat', locationObj.lat);
+      data.append('lng', locationObj.lng);
     }
 
     onSubmit(data);
@@ -133,7 +198,18 @@ const CreateDonationModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
             </div>
 
             <div className="bg-primary-50/50 p-4 rounded-2xl border border-primary-100">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3" style={{ fontFamily: 'var(--font-sans)' }}>Pickup Location *</h3>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-sm font-semibold text-gray-700" style={{ fontFamily: 'var(--font-sans)' }}>Pickup Location *</h3>
+                <button
+                  type="button"
+                  onClick={handleGetLocation}
+                  disabled={gettingLocation}
+                  className="text-xs text-primary-600 hover:text-primary-800 font-medium cursor-pointer"
+                >
+                  {gettingLocation ? 'Detecting & filling address...' : locationObj.lat ? 'Location Captured & Filled ✓' : '📍 Use Current Location'}
+                </button>
+              </div>
+              {locationError && <p className="text-xs text-red-500 mb-2">{locationError}</p>}
               <div className="space-y-4">
                 <div>
                   <input

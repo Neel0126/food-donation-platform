@@ -9,7 +9,7 @@ const NotFoundPage = () => {
   const { user, isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#fff7ed] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center px-4 font-sans">
       <div className="text-center max-w-md animate-fade-in-up">
         {/* Large 404 text */}
         <div className="mb-4">
