@@ -1,30 +1,46 @@
 @import "tailwindcss";
 
-/* ===== ShareBite Food Donation Platform — Warm Minimal Theme ===== */
+/* ===== ShareBite Food Donation Platform — Earthy Fresh Theme ===== */
 @theme {
   --font-sans: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-body: "Work Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  /* Warm Orange Primary */
-  --color-primary-50: #fff7ed;
-  --color-primary-100: #ffedd5;
-  --color-primary-200: #fed7aa;
-  --color-primary-300: #fdba74;
-  --color-primary-400: #fb923c;
-  --color-primary-500: #f97316;
-  --color-primary-600: #ea580c;
-  --color-primary-700: #c2410c;
-  --color-primary-800: #9a3412;
-  --color-primary-900: #7c2d12;
+  /* Forest Green Primary Palette */
+  --color-primary-50: #f2f7f0;
+  --color-primary-100: #e2efe0;
+  --color-primary-200: #c5dfc1;
+  --color-primary-300: #9ec798;
+  --color-primary-400: #6fa968;
+  --color-primary-500: #3c7a31;
+  --color-primary-600: #2d5a27; /* Main Brand Forest Green */
+  --color-primary-700: #244820;
+  --color-primary-800: #1b3718;
+  --color-primary-900: #132711;
 
-  /* Trust Blue Accent */
-  --color-accent-100: #dbeafe;
-  --color-accent-200: #bfdbfe;
-  --color-accent-300: #93c5fd;
-  --color-accent-400: #60a5fa;
-  --color-accent-500: #3b82f6;
-  --color-accent-600: #2563eb;
-  --color-accent-700: #1d4ed8;
+  /* Sage Green Secondary Palette */
+  --color-sage-50: #f6f9f5;
+  --color-sage-100: #ebf3ea;
+  --color-sage-200: #d6e7d4;
+  --color-sage-300: #b5d5b2;
+  --color-sage-400: #8ebf8a;
+  --color-sage-500: #6ea76a;
+  --color-sage-600: #548b50;
+  --color-sage-700: #426e3e;
+
+  /* Warm Amber / Terracotta Accent */
+  --color-accent-50: #fff9f2;
+  --color-accent-100: #fef0df;
+  --color-accent-200: #fce0bc;
+  --color-accent-300: #f8c88c;
+  --color-accent-400: #f2a758;
+  --color-accent-500: #d48b3a; /* Warm harvest amber */
+  --color-accent-600: #b86f26;
+  --color-accent-700: #92531e;
+
+  /* Stone Neutral Backgrounds & Borders */
+  --color-stone-bg: #f5f0e8;
+  --color-stone-card: #fbf9f5;
+  --color-stone-border: #e6ded3;
 }
 
 /* ===== Keyframe Animations ===== */
@@ -84,7 +100,12 @@
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(2deg); }
 }
 
 @keyframes shimmer {
@@ -114,7 +135,11 @@
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 3.5s ease-in-out infinite;
+}
+
+.animate-float-gentle {
+  animation: float-gentle 4s ease-in-out infinite;
 }
 
 .animate-pulse-soft {
@@ -137,6 +162,7 @@
   .animate-slide-in-right,
   .animate-scale-in,
   .animate-float,
+  .animate-float-gentle,
   .animate-pulse-soft {
     animation: none !important;
   }
@@ -148,12 +174,13 @@ body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #0f172a;
-  background-color: #fff7ed;
+  color: #1a261a;
+  background-color: #f5f0e8;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
+  color: #162a14;
 }
 
 #root {
@@ -162,40 +189,42 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
 }
 
-/* ===== Utility Classes ===== */
+/* ===== Earthy Fresh UI Utilities ===== */
 
 /* Card base */
 .card {
-  background-color: #fff;
-  border: 1px solid #fceae1;
-  border-radius: 1rem;
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  background-color: #ffffff;
+  border: 1px solid #e7ded4;
+  border-radius: 1.25rem;
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
 }
 .card:hover {
-  box-shadow: 0 8px 30px rgba(234, 88, 12, 0.08);
+  box-shadow: 0 12px 32px rgba(45, 90, 39, 0.08);
+  border-color: #c9dec6;
   transform: translateY(-2px);
 }
 
-/* Primary Button */
+/* Primary Button - Forest Green */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.5rem;
+  padding: 0.65rem 1.6rem;
   font-weight: 600;
-  font-size: 0.875rem;
-  border-radius: 0.625rem;
-  color: #fff;
-  background-color: #ea580c;
-  border: none;
+  font-size: 0.9rem;
+  border-radius: 9999px;
+  color: #ffffff;
+  background-color: #2d5a27;
+  border: 1px solid #244820;
   cursor: pointer;
   transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
   font-family: var(--font-sans);
+  box-shadow: 0 4px 14px rgba(45, 90, 39, 0.22);
 }
 .btn-primary:hover {
-  background-color: #c2410c;
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.25);
+  background-color: #23491f;
+  box-shadow: 0 6px 18px rgba(45, 90, 39, 0.32);
   transform: translateY(-1px);
 }
 .btn-primary:active {
@@ -208,26 +237,50 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none;
 }
 
-/* Secondary Button */
+/* Secondary Button - Sage Outline */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.5rem;
+  padding: 0.65rem 1.6rem;
   font-weight: 600;
-  font-size: 0.875rem;
-  border-radius: 0.625rem;
-  color: #c2410c;
-  background-color: #fff7ed;
-  border: 1px solid #fed7aa;
+  font-size: 0.9rem;
+  border-radius: 9999px;
+  color: #244820;
+  background-color: #ffffff;
+  border: 1.5px solid #2d5a27;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+  transition: background-color 0.2s, border-color 0.2s, transform 0.2s, color 0.2s;
   font-family: var(--font-sans);
 }
 .btn-secondary:hover {
-  background-color: #ffedd5;
-  border-color: #fdba74;
+  background-color: #f2f7f0;
+  border-color: #23491f;
+  transform: translateY(-1px);
+}
+
+/* Accent Button - Warm Amber */
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.6rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 9999px;
+  color: #ffffff;
+  background-color: #d48b3a;
+  border: 1px solid #b86f26;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  font-family: var(--font-sans);
+  box-shadow: 0 4px 14px rgba(212, 139, 58, 0.25);
+}
+.btn-accent:hover {
+  background-color: #b86f26;
+  box-shadow: 0 6px 18px rgba(212, 139, 58, 0.35);
   transform: translateY(-1px);
 }
 
@@ -240,7 +293,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.625rem 1.5rem;
   font-weight: 600;
   font-size: 0.875rem;
-  border-radius: 0.625rem;
+  border-radius: 9999px;
   color: #fff;
   background-color: #dc2626;
   border: none;
@@ -253,27 +306,27 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-1px);
 }
 
-/* Form Input */
+/* Form Input with Warm Stone & Forest Focus */
 .input-field {
   width: 100%;
-  padding: 0.625rem 0.75rem;
+  padding: 0.65rem 0.875rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  border: 1px solid #fceae1;
-  border-radius: 0.625rem;
-  background-color: #fff;
-  color: #0f172a;
+  border: 1.5px solid #e5ddd2;
+  border-radius: 0.75rem;
+  background-color: #ffffff;
+  color: #1a261a;
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
   box-sizing: border-box;
   font-family: var(--font-body);
 }
 .input-field::placeholder {
-  color: #9ca3af;
+  color: #9aa597;
 }
 .input-field:focus {
-  border-color: #f97316;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+  border-color: #2d5a27;
+  box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.15);
 }
 .input-field.input-error {
   border-color: #ef4444;
@@ -282,17 +335,32 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
+/* Pill Stat Cards */
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-pill:hover {
+  transform: translateY(-2px);
+}
+
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #fff7ed;
+  background: #f5f0e8;
 }
 ::-webkit-scrollbar-thumb {
-  background: #fed7aa;
-  border-radius: 3px;
+  background: #c5dfc1;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #fdba74;
+  background: #9ec798;
 }

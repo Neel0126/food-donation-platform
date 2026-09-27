@@ -2,6 +2,7 @@ const Donation = require('../models/Donation');
 const VolunteerProfile = require('../models/VolunteerProfile');
 const NgoProfile = require('../models/NgoProfile');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const { generateOtp } = require('../utils/otpUtils');
 
 // @desc    Get volunteer profile
@@ -290,6 +291,7 @@ const acceptTask = async (req, res) => {
     task.assignedVolunteer = req.user._id;
     task.volunteerStatus = 'accepted';
     task.status = 'assigned';
+    task.timeline.push({ status: 'assigned', description: 'Volunteer accepted the pickup task' });
 
     await task.save();
 
@@ -300,6 +302,13 @@ const acceptTask = async (req, res) => {
       profile.availabilityStatus = 'busy';
       await profile.save();
     }
+
+    await Notification.create({
+      user: task.donor,
+      message: 'A volunteer has accepted the pickup task for your donation.',
+      type: 'donation_status',
+      relatedDonation: task._id
+    });
 
     // Fetch populated task without exposing OTPs to volunteer
     const updatedTask = await Donation.findById(task._id)
@@ -347,6 +356,7 @@ const rejectTask = async (req, res) => {
     task.volunteerStatus = 'unassigned';
     task.status = 'accepted';
     task.volunteerRequested = true;
+    task.timeline.push({ status: 'accepted', description: 'Volunteer rejected the pickup task' });
 
     await task.save();
 
@@ -408,8 +418,16 @@ const verifyPickupOtp = async (req, res) => {
     task.status = 'picked_up';
     task.volunteerStatus = 'in_progress';
     task.pickedUpAt = new Date();
+    task.timeline.push({ status: 'picked_up', description: 'Donation picked up by volunteer' });
 
     await task.save();
+
+    await Notification.create({
+      user: task.donor,
+      message: 'Your donation has been picked up by the volunteer!',
+      type: 'donation_status',
+      relatedDonation: task._id
+    });
 
     const updatedTask = await Donation.findById(task._id)
       .select('-pickupOtp -deliveryOtp')
@@ -594,8 +612,16 @@ const completeTask = async (req, res) => {
     task.status = 'delivered';
     task.volunteerStatus = 'completed';
     task.deliveredAt = new Date();
+    task.timeline.push({ status: 'delivered', description: 'Donation delivered by volunteer' });
 
     await task.save();
+
+    await Notification.create({
+      user: task.donor,
+      message: 'Your donation has been delivered successfully!',
+      type: 'donation_status',
+      relatedDonation: task._id
+    });
 
     // Update volunteer profile statistics
     let profile = await VolunteerProfile.findOne({ user: req.user._id });

@@ -3,13 +3,13 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 
 /**
- * Dashboard layout — combines Navbar + Sidebar + main content area
+ * Dashboard layout — combines Navbar + Sidebar + main content area with Earthy Fresh theme
  */
 const DashboardLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#fff7ed] flex flex-col">
+    <div className="min-h-screen bg-[#f5f0e8] flex flex-col font-sans text-[#1a261a]">
       <Navbar onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />
 
       <div className="flex flex-1 overflow-hidden">

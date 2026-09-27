@@ -109,8 +109,7 @@ const DonorDashboard = () => {
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl hover:bg-primary-700 hover:shadow-lg hover:shadow-primary-600/20 transition-all duration-200 font-medium text-sm cursor-pointer"
-          style={{ fontFamily: 'var(--font-sans)' }}
+          className="btn-primary text-sm px-5 py-2.5 shadow-md shadow-primary-900/10"
         >
           <HiPlus size={18} />
           Create Donation
@@ -124,13 +123,13 @@ const DonorDashboard = () => {
           return (
             <div
               key={stat.label}
-              className={`bg-white rounded-2xl border border-primary-100 p-5 flex items-center gap-4 hover:shadow-md hover:shadow-primary-600/5 transition-all duration-250 animate-fade-in-up animate-stagger-${i + 1}`}
+              className={`bg-white rounded-3xl border border-[#e6ded3] p-5 flex items-center gap-4 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-900/5 transition-all duration-250 animate-fade-in-up animate-stagger-${i + 1}`}
             >
-              <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${stat.color}`}>
+              <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 ${stat.color}`}>
                 <Icon size={22} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>{stat.value}</p>
+                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>{stat.value}</p>
                 <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
               </div>
             </div>

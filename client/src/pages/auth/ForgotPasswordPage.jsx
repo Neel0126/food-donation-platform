@@ -28,24 +28,22 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf9f6] flex flex-col justify-center items-center p-4 sm:p-8">
+    <div className="min-h-screen bg-[#f5f0e8] flex flex-col justify-center items-center p-4 sm:p-8 font-sans">
       
       {/* Brand / Logo */}
       <div className="mb-8 text-center animate-fade-in-up">
-        <Link to="/" className="inline-flex items-center gap-2 no-underline">
-          <div className="bg-primary-600 text-white p-2 rounded-xl">
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-            </svg>
+        <Link to="/" className="inline-flex items-center gap-2.5 no-underline group">
+          <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-200">
+            <span className="text-white text-base font-bold">🌱</span>
           </div>
-          <span className="text-3xl font-extrabold tracking-tight text-gray-900 font-outfit">
-            Share<span className="text-primary-600">Bite</span>
+          <span className="text-2xl font-bold tracking-tight text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>
+            Share<span className="text-primary-600 font-extrabold">Bite</span>
           </span>
         </Link>
       </div>
 
       {/* Forgot Password Card */}
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-primary-900/5 p-8 sm:p-10 border border-primary-50 animate-scale-in">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-primary-900/5 p-8 sm:p-10 border border-[#e6ded3] animate-scale-in">
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 font-outfit">
             Reset Password

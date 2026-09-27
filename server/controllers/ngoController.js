@@ -2,6 +2,7 @@ const NgoProfile = require('../models/NgoProfile');
 const Donation = require('../models/Donation');
 const VolunteerProfile = require('../models/VolunteerProfile');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const { generateOtp } = require('../utils/otpUtils');
 
 // @desc    Register NGO Profile & upload documents
@@ -59,8 +60,20 @@ const registerNgoProfile = async (req, res) => {
 // @access  Private (NGO)
 const getNearbyDonations = async (req, res) => {
   try {
-    const { city, search, all } = req.query;
+    const { city, search, all, lat, lng, maxDistance } = req.query;
     let query = { status: 'pending' };
+
+    if (lat && lng && maxDistance) {
+      query.location = {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [parseFloat(lng), parseFloat(lat)]
+          },
+          $maxDistance: parseInt(maxDistance) * 1000 // Convert km to meters
+        }
+      };
+    }
 
     // Fetch NGO's profile to find their registered city
     const ngoProfile = await NgoProfile.findOne({ user: req.user._id });
@@ -145,7 +158,15 @@ const acceptDonation = async (req, res) => {
       };
     }
 
+    donation.timeline.push({ status: 'accepted', description: 'Donation accepted by NGO' });
     await donation.save();
+
+    await Notification.create({
+      user: donation.donor,
+      message: 'Your donation has been accepted by an NGO.',
+      type: 'donation_status',
+      relatedDonation: donation._id
+    });
 
     res.json({
       message: 'Donation accepted successfully',
@@ -191,6 +212,7 @@ const requestVolunteer = async (req, res) => {
     }
 
     donation.volunteerRequested = true;
+    donation.timeline.push({ status: 'accepted', description: 'Volunteer requested for pickup' });
     await donation.save();
 
     res.json({
@@ -271,8 +293,16 @@ const assignVolunteer = async (req, res) => {
     donation.volunteerRequested = true;
     donation.volunteerStatus = 'assigned';
     donation.status = 'assigned';
+    donation.timeline.push({ status: 'assigned', description: `Volunteer ${volunteer.name} assigned for pickup` });
 
     await donation.save();
+
+    await Notification.create({
+      user: volunteer._id,
+      message: 'You have been assigned to a new delivery task.',
+      type: 'volunteer_assignment',
+      relatedDonation: donation._id
+    });
 
     // Update volunteer profile status to busy
     const volProfile = await VolunteerProfile.findOne({ user: volunteer._id });
@@ -324,7 +354,15 @@ const confirmDelivery = async (req, res) => {
       }
     }
 
+    donation.timeline.push({ status: 'delivered', description: 'Donation marked as delivered by NGO' });
     await donation.save();
+
+    await Notification.create({
+      user: donation.donor,
+      message: 'Your donation has been delivered successfully!',
+      type: 'donation_status',
+      relatedDonation: donation._id
+    });
 
     res.json({
       message: 'Donation marked as delivered',

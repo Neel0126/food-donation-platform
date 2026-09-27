@@ -21,7 +21,7 @@ const LoadingSpinner = ({ message = 'Loading...', size = 'md', fullScreen = fals
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#fff7ed]/90 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#f5f0e8]/90 backdrop-blur-sm">
         {spinner}
       </div>
     );

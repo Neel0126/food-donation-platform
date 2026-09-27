@@ -95,16 +95,16 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fff7ed] flex flex-col">
+    <div className="min-h-screen bg-[#f5f0e8] flex flex-col font-sans">
       {/* Header bar */}
-      <div className="bg-white/80 backdrop-blur-md border-b border-primary-100 animate-fade-in">
+      <div className="bg-[#f5f0e8]/90 backdrop-blur-md border-b border-[#e6ded3] animate-fade-in">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center">
           <Link to="/" className="flex items-center gap-2.5 no-underline group">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow duration-200">
-              <span className="text-white text-sm font-bold">S</span>
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-200">
+              <span className="text-white text-sm font-bold">🌱</span>
             </div>
-            <span className="text-lg font-bold text-gray-800 tracking-tight" style={{ fontFamily: 'var(--font-sans)' }}>
-              Share<span className="text-primary-600">Bite</span>
+            <span className="text-lg font-bold text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-sans)' }}>
+              Share<span className="text-primary-600 font-extrabold">Bite</span>
             </span>
           </Link>
         </div>
@@ -133,7 +133,7 @@ const RegisterPage = () => {
         {/* Right: Form panel */}
         <div className="flex-1 flex items-center justify-center py-8 px-4">
           <div className="w-full max-w-lg animate-fade-in-up">
-            <div className="bg-white rounded-2xl shadow-sm border border-primary-100 p-6 sm:p-8">
+            <div className="bg-white rounded-3xl shadow-md border border-[#e6ded3] p-6 sm:p-8">
               {/* Heading */}
               <div className="text-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>Create your account</h1>

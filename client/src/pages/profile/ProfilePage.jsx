@@ -112,16 +112,16 @@ const ProfilePage = () => {
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-primary-100 p-6 sm:p-8 animate-fade-in-up animate-stagger-1">
+        <div className="bg-white rounded-3xl border border-[#e6ded3] p-6 sm:p-8 shadow-sm animate-fade-in-up animate-stagger-1">
           {/* Avatar + role badge */}
-          <div className="flex flex-col items-center mb-6 pb-6 border-b border-primary-50">
-            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center mb-3 ring-4 ring-primary-50 animate-scale-in">
-              <span className="text-2xl font-bold text-primary-700">
+          <div className="flex flex-col items-center mb-6 pb-6 border-b border-[#e6ded3]">
+            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary-600 to-primary-800 text-white flex items-center justify-center mb-3 ring-4 ring-primary-100 shadow-sm animate-scale-in">
+              <span className="text-2xl font-bold">
                 {user?.name?.charAt(0)?.toUpperCase() || <HiUser size={28} />}
               </span>
             </div>
-            <h2 className="text-lg font-semibold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>{user?.name}</h2>
-            <span className="mt-1 inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary-50 text-primary-700 uppercase tracking-wide">
+            <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>{user?.name}</h2>
+            <span className="mt-1.5 inline-block px-3 py-1 text-xs font-bold rounded-full bg-primary-100 text-primary-800 uppercase tracking-wider">
               {getRoleLabel(user?.role)}
             </span>
           </div>

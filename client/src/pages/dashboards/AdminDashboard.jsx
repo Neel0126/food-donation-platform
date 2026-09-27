@@ -112,13 +112,13 @@ const OverviewTab = ({ stats, loading }) => {
           return (
             <div
               key={stat.label}
-              className={`bg-white rounded-2xl border border-primary-100 p-5 flex items-start gap-4 hover:shadow-md hover:shadow-primary-600/5 transition-all duration-250 animate-fade-in-up animate-stagger-${i + 1}`}
+              className={`bg-white rounded-3xl border border-[#e6ded3] p-5 flex items-start gap-4 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-900/5 transition-all duration-250 animate-fade-in-up animate-stagger-${i + 1}`}
             >
-              <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${stat.color}`}>
+              <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 ${stat.color}`}>
                 <Icon size={22} />
               </div>
               <div className="min-w-0">
-                <p className="text-2xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>{stat.value}</p>
+                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>{stat.value}</p>
                 <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
                 <p className="text-[10px] text-gray-400 mt-0.5 truncate">{stat.sub}</p>
               </div>
@@ -830,10 +830,10 @@ const AdminDashboard = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                 isActive
-                  ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
-                  : 'bg-white text-gray-500 border border-primary-100 hover:bg-primary-50 hover:text-primary-700'
+                  ? 'bg-primary-600 text-white shadow-md shadow-primary-900/15'
+                  : 'bg-white text-gray-600 border border-[#e6ded3] hover:bg-primary-50 hover:text-primary-800'
               }`}
               style={{ fontFamily: 'var(--font-sans)' }}
             >

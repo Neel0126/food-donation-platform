@@ -1,4 +1,5 @@
 const Donation = require('../models/Donation');
+const Notification = require('../models/Notification');
 const cloudinary = require('../config/cloudinary');
 
 // @desc    Create a new donation
@@ -6,7 +7,7 @@ const cloudinary = require('../config/cloudinary');
 // @access  Private/Donor
 const createDonation = async (req, res) => {
   try {
-    const { foodType, quantity, description, pickupLocation } = req.body;
+    const { foodType, quantity, description, pickupLocation, lat, lng } = req.body;
     let imageUrl = '';
     let imagePublicId = '';
 
@@ -31,14 +32,21 @@ const createDonation = async (req, res) => {
       }
     }
 
+    let coordinates = [0, 0];
+    if (lng && lat) {
+      coordinates = [parseFloat(lng), parseFloat(lat)];
+    }
+
     const donation = await Donation.create({
       donor: req.user._id,
       foodType,
       quantity,
       description,
       pickupLocation: parsedLocation,
+      location: { type: 'Point', coordinates },
       imageUrl,
       imagePublicId,
+      timeline: [{ status: 'pending', description: 'Donation created' }]
     });
 
     res.status(201).json(donation);
@@ -138,6 +146,12 @@ const updateDonation = async (req, res) => {
       } catch (e) {}
     }
 
+    let coordinates = donation.location ? donation.location.coordinates : [0, 0];
+    if (req.body.lng && req.body.lat) {
+      coordinates = [parseFloat(req.body.lng), parseFloat(req.body.lat)];
+      donation.location = { type: 'Point', coordinates };
+    }
+
     donation.foodType = foodType || donation.foodType;
     donation.quantity = quantity || donation.quantity;
     donation.description = description !== undefined ? description : donation.description;
@@ -173,6 +187,7 @@ const cancelDonation = async (req, res) => {
     }
 
     donation.status = 'cancelled';
+    donation.timeline.push({ status: 'cancelled', description: 'Donation cancelled by donor' });
     const updatedDonation = await donation.save();
 
     res.json(updatedDonation);
