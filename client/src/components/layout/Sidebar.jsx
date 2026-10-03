@@ -2,142 +2,142 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getDashboardPath, getRoleLabel } from '../../utils/roleRedirect';
 import {
-  HiHome,
+  HiChartBar,
+  HiUsers,
+  HiGift,
+  HiShieldCheck,
+  HiTruck,
+  HiDocumentReport,
+  HiCog,
   HiUser,
   HiLogout,
-  HiClipboardList,
-  HiUserGroup,
-  HiTruck,
-  HiCog,
-  HiShieldCheck,
-  HiExclamation,
   HiX,
+  HiExclamationCircle,
 } from 'react-icons/hi';
 
 /**
- * Sidebar navigation for dashboard pages with Earthy Fresh styling
+ * Admin Sidebar navigation with deep info hierarchy
  */
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose, activeTab, onTabChange }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
 
-  if (!user) return null;
+  if (!user || user.role !== 'admin') return null;
 
-  const isActive = (path) => location.pathname === path;
+  const adminMenuItems = [
+    { tab: 'overview', label: 'Dashboard', icon: HiChartBar },
+    { tab: 'users', label: 'Users', icon: HiUsers },
+    { tab: 'donations', label: 'Donations', icon: HiGift },
+    { tab: 'ngos', label: 'NGO Approvals', icon: HiShieldCheck },
+    { tab: 'volunteers', label: 'Volunteers', icon: HiTruck },
+    { tab: 'complaints', label: 'Reports & Complaints', icon: HiExclamationCircle },
+    { to: '/profile', label: 'Settings', icon: HiCog },
+  ];
 
-  // Role-specific menu items
-  const roleMenuItems = {
-    donor: [
-      { to: '/donor/dashboard', label: 'Dashboard', icon: HiHome },
-      { to: '/profile', label: 'My Profile', icon: HiUser },
-    ],
-    ngo: [
-      { to: '/ngo/dashboard', label: 'Dashboard', icon: HiHome },
-      { to: '/profile', label: 'Organization Profile', icon: HiUser },
-    ],
-    volunteer: [
-      { to: '/volunteer/dashboard', label: 'Dashboard', icon: HiHome },
-      { to: '/profile', label: 'My Profile', icon: HiUser },
-    ],
-    admin: [
-      { to: '/admin/dashboard', label: 'Dashboard', icon: HiHome },
-      { to: '/admin/dashboard', label: 'Users', icon: HiUserGroup, tab: 'users' },
-      { to: '/admin/dashboard', label: 'NGO Approvals', icon: HiShieldCheck, tab: 'ngos' },
-      { to: '/admin/dashboard', label: 'Donations', icon: HiClipboardList, tab: 'donations' },
-      { to: '/admin/dashboard', label: 'Complaints', icon: HiExclamation, tab: 'complaints' },
-      { to: '/profile', label: 'My Profile', icon: HiUser },
-    ],
+  const handleItemClick = (item) => {
+    if (item.tab && onTabChange) {
+      onTabChange(item.tab);
+    }
+    if (onClose) onClose();
   };
 
-  const menuItems = roleMenuItems[user.role] || roleMenuItems.donor;
+  const isItemActive = (item) => {
+    if (item.tab) {
+      if (activeTab) return activeTab === item.tab;
+      const params = new URLSearchParams(location.search);
+      return (params.get('tab') || 'overview') === item.tab;
+    }
+    return location.pathname === item.to;
+  };
 
   return (
     <>
-      {/* Overlay for mobile */}
+      {/* Mobile Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/30 backdrop-blur-xs lg:hidden animate-fade-in"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden animate-fade-in"
           onClick={onClose}
           aria-hidden="true"
         />
       )}
 
-      {/* Sidebar panel */}
+      {/* Sidebar Panel */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white/90 backdrop-blur-md border-r border-[#e6ded3] flex flex-col transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-[#e8e2d5] flex flex-col h-full shrink-0 transform transition-transform duration-300 ease-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        {/* Mobile close button */}
-        <div className="lg:hidden flex items-center justify-between p-4 border-b border-[#e6ded3]">
-          <span className="text-sm font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>Menu</span>
+        {/* Mobile Header / Close */}
+        <div className="lg:hidden flex items-center justify-between p-4 border-b border-[#e8e2d5]">
+          <span className="text-sm font-bold text-[#172117]" style={{ fontFamily: 'var(--font-sans)' }}>
+            Admin Navigation
+          </span>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-500 hover:text-primary-700 hover:bg-primary-50 transition-all duration-200 cursor-pointer"
+            className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 cursor-pointer"
             aria-label="Close sidebar"
           >
             <HiX size={20} />
           </button>
         </div>
 
-        {/* User info badge */}
-        <div className="p-4 border-b border-[#e6ded3] bg-[#fbf9f5]">
+        {/* User Badge */}
+        <div className="p-4 border-b border-[#e8e2d5] bg-[#faf8f4]">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shrink-0 shadow-xs">
-              <span className="text-sm font-bold text-white">
-                {user.name?.charAt(0)?.toUpperCase() || 'U'}
-              </span>
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary-700 to-primary-900 text-white flex items-center justify-center font-bold shadow-xs">
+              {user.name?.charAt(0)?.toUpperCase() || 'A'}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 truncate" style={{ fontFamily: 'var(--font-sans)' }}>{user.name}</p>
-              <span className="inline-block mt-0.5 px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-primary-100 text-primary-800 uppercase tracking-wider">
-                {getRoleLabel(user.role)}
+              <p className="text-sm font-bold text-[#172117] truncate" style={{ fontFamily: 'var(--font-sans)' }}>
+                {user.name}
+              </p>
+              <span className="inline-block mt-0.5 px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-800 uppercase tracking-wider">
+                Administrator
               </span>
             </div>
           </div>
         </div>
 
-        {/* Navigation links */}
-        <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
-          {menuItems.map((item) => {
+        {/* Navigation items */}
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+          {adminMenuItems.map((item) => {
             const Icon = item.icon;
+            const active = isItemActive(item);
             const linkTo = item.tab
-              ? { pathname: item.to, search: `?tab=${item.tab}` }
+              ? { pathname: '/admin/dashboard', search: `?tab=${item.tab}` }
               : item.to;
-            const active = item.tab
-              ? location.pathname === item.to && location.search === `?tab=${item.tab}`
-              : isActive(item.to) && !location.search;
+
             return (
               <Link
                 key={item.label}
                 to={linkTo}
-                onClick={onClose}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium no-underline transition-all duration-200 cursor-pointer ${
+                onClick={() => handleItemClick(item)}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold no-underline transition-all cursor-pointer ${
                   active
-                    ? 'bg-primary-600 text-white font-semibold shadow-xs'
+                    ? 'bg-primary-600 text-white shadow-xs'
                     : 'text-gray-600 hover:bg-primary-50 hover:text-primary-800'
                 }`}
                 style={{ fontFamily: 'var(--font-sans)' }}
               >
                 <Icon size={18} className="shrink-0" />
-                {item.label}
+                <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
         {/* Logout */}
-        <div className="p-3 border-t border-[#e6ded3] bg-[#fbf9f5]">
+        <div className="p-3 border-t border-[#e8e2d5] bg-[#faf8f4]">
           <button
             onClick={() => {
-              onClose();
+              if (onClose) onClose();
               logout();
             }}
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer"
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-red-600 hover:bg-red-50 transition-all cursor-pointer"
             style={{ fontFamily: 'var(--font-sans)' }}
           >
             <HiLogout size={18} className="shrink-0" />
-            Logout
+            <span>Logout</span>
           </button>
         </div>
       </aside>

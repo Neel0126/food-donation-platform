@@ -1,0 +1,954 @@
+[
+  {
+    "_id": "6aba3101ce91d9263a312221",
+    "user": "6aba3101ce91d9263a312220",
+    "organizationName": "RentVerse",
+    "registrationNumber": "896532",
+    "address": {
+      "street": "Devnandan Society",
+      "city": "Devnandan Society",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-28T09:18:57.182Z",
+    "updatedAt": "2026-09-29T17:22:57.615Z",
+    "__v": 1,
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "coverImagePublicId": "food-donation-platform/donations/xqnchrkb8ntaioopucp8",
+    "coverImageUrl": "https://res.cloudinary.com/dqzvazqge/image/upload/v1790702576/food-donation-platform/donations/xqnchrkb8ntaioopucp8.jpg",
+    "description": "",
+    "website": ""
+  },
+  {
+    "_id": "6a93bd1ace63351970ed540c",
+    "user": "6a93bd1ace63351970ed540b",
+    "organizationName": "Food",
+    "registrationNumber": "392093024858",
+    "address": {
+      "street": "Nadiad",
+      "country": "India"
+    },
+    "verificationStatus": "approved",
+    "createdAt": "2026-08-30T05:18:18.209Z",
+    "updatedAt": "2026-08-30T05:18:18.209Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a64b32958b9609e4d9ddf20",
+    "user": "6a64b32858b9609e4d9ddf1f",
+    "organizationName": "Fooddonate",
+    "registrationNumber": "1234567890",
+    "address": {
+      "street": "near Santaram mandir nadiad",
+      "country": "India"
+    },
+    "verificationStatus": "approved",
+    "createdAt": "2026-07-25T12:59:21.007Z",
+    "updatedAt": "2026-07-25T12:59:21.007Z",
+    "__v": 0
+  },
+  {
+    "_id": "6ab942993e7ce6bb4b011d20",
+    "user": "6ab942993e7ce6bb4b011d1f",
+    "organizationName": "Fooddonate",
+    "registrationNumber": "234567890",
+    "address": {
+      "street": "Nadiad",
+      "country": "India"
+    },
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-27T16:21:45.266Z",
+    "updatedAt": "2026-09-27T16:37:08.926Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd45396cfa9c4d44c18801",
+    "user": "6abd45396cfa9c4d44c18800",
+    "organizationName": "Helping Hands Foundation",
+    "registrationNumber": "REG-1790788919294",
+    "address": {
+      "street": "789 NGO Blvd, Uptown",
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:22:01.715Z",
+    "updatedAt": "2026-09-30T17:22:01.817Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4591329ff737abc29318",
+    "user": "6abd4591329ff737abc29317",
+    "organizationName": "Helping Hands Foundation",
+    "registrationNumber": "REG-1790789007827",
+    "address": {
+      "street": "789 NGO Blvd, Uptown",
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:23:29.586Z",
+    "updatedAt": "2026-09-30T17:23:29.657Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd45bbc08cc55ef07f302b",
+    "user": "6abd45bbc08cc55ef07f302a",
+    "organizationName": "Direct NGO Org",
+    "registrationNumber": "REG-DIR-1790789049838",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:24:11.192Z",
+    "updatedAt": "2026-09-30T17:24:11.263Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd45f3ab1884512d5c96c0",
+    "user": "6abd45f3ab1884512d5c96bf",
+    "organizationName": "Direct NGO Org",
+    "registrationNumber": "REG-DIR-1790789106205",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:25:07.695Z",
+    "updatedAt": "2026-09-30T17:25:07.761Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd483c9080c7dceda020f1",
+    "user": "6abd483c9080c7dceda020f0",
+    "organizationName": "Hack NGO",
+    "registrationNumber": "REG-SEC-1790789691407",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "pending",
+    "createdAt": "2026-09-30T17:34:52.982Z",
+    "updatedAt": "2026-09-30T17:34:52.982Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4858ad99968fda6d7b1a",
+    "user": "6abd4858ad99968fda6d7b19",
+    "organizationName": "NGO Org 0",
+    "registrationNumber": "REG-STRESS-0-1790789719762",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:35:20.757Z",
+    "updatedAt": "2026-09-30T17:35:20.757Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4859ad99968fda6d7b1c",
+    "user": "6abd4858ad99968fda6d7b1b",
+    "organizationName": "NGO Org 1",
+    "registrationNumber": "REG-STRESS-1-1790789719762",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:35:21.001Z",
+    "updatedAt": "2026-09-30T17:35:21.001Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4859ad99968fda6d7b1e",
+    "user": "6abd4859ad99968fda6d7b1d",
+    "organizationName": "NGO Org 2",
+    "registrationNumber": "REG-STRESS-2-1790789719762",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:35:21.224Z",
+    "updatedAt": "2026-09-30T17:35:21.224Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4859ad99968fda6d7b20",
+    "user": "6abd4859ad99968fda6d7b1f",
+    "organizationName": "NGO Org 3",
+    "registrationNumber": "REG-STRESS-3-1790789719762",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:35:21.465Z",
+    "updatedAt": "2026-09-30T17:35:21.465Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4859ad99968fda6d7b22",
+    "user": "6abd4859ad99968fda6d7b21",
+    "organizationName": "NGO Org 4",
+    "registrationNumber": "REG-STRESS-4-1790789719762",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:35:21.686Z",
+    "updatedAt": "2026-09-30T17:35:21.686Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4859ad99968fda6d7b24",
+    "user": "6abd4859ad99968fda6d7b23",
+    "organizationName": "NGO Org 5",
+    "registrationNumber": "REG-STRESS-5-1790789719762",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:35:21.932Z",
+    "updatedAt": "2026-09-30T17:35:21.932Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485aad99968fda6d7b26",
+    "user": "6abd485aad99968fda6d7b25",
+    "organizationName": "NGO Org 6",
+    "registrationNumber": "REG-STRESS-6-1790789719762",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:35:22.146Z",
+    "updatedAt": "2026-09-30T17:35:22.146Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485aad99968fda6d7b28",
+    "user": "6abd485aad99968fda6d7b27",
+    "organizationName": "NGO Org 7",
+    "registrationNumber": "REG-STRESS-7-1790789719762",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:35:22.377Z",
+    "updatedAt": "2026-09-30T17:35:22.377Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485aad99968fda6d7b2a",
+    "user": "6abd485aad99968fda6d7b29",
+    "organizationName": "NGO Org 8",
+    "registrationNumber": "REG-STRESS-8-1790789719762",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:35:22.601Z",
+    "updatedAt": "2026-09-30T17:35:22.601Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485aad99968fda6d7b2c",
+    "user": "6abd485aad99968fda6d7b2b",
+    "organizationName": "NGO Org 9",
+    "registrationNumber": "REG-STRESS-9-1790789719762",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:35:22.840Z",
+    "updatedAt": "2026-09-30T17:35:22.840Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd488dcf7e0cfe93f7b378",
+    "user": "6abd488dcf7e0cfe93f7b377",
+    "organizationName": "NGO Org 0",
+    "registrationNumber": "REG-STRESS-0-1790789773183",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:36:13.709Z",
+    "updatedAt": "2026-09-30T17:36:13.709Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd488dcf7e0cfe93f7b37a",
+    "user": "6abd488dcf7e0cfe93f7b379",
+    "organizationName": "NGO Org 1",
+    "registrationNumber": "REG-STRESS-1-1790789773183",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:36:13.902Z",
+    "updatedAt": "2026-09-30T17:36:13.902Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd488ecf7e0cfe93f7b37c",
+    "user": "6abd488dcf7e0cfe93f7b37b",
+    "organizationName": "NGO Org 2",
+    "registrationNumber": "REG-STRESS-2-1790789773183",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:36:14.111Z",
+    "updatedAt": "2026-09-30T17:36:14.111Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd488ecf7e0cfe93f7b37e",
+    "user": "6abd488ecf7e0cfe93f7b37d",
+    "organizationName": "NGO Org 3",
+    "registrationNumber": "REG-STRESS-3-1790789773183",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:36:14.312Z",
+    "updatedAt": "2026-09-30T17:36:14.312Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd488ecf7e0cfe93f7b380",
+    "user": "6abd488ecf7e0cfe93f7b37f",
+    "organizationName": "NGO Org 4",
+    "registrationNumber": "REG-STRESS-4-1790789773183",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:36:14.532Z",
+    "updatedAt": "2026-09-30T17:36:14.532Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd488ecf7e0cfe93f7b382",
+    "user": "6abd488ecf7e0cfe93f7b381",
+    "organizationName": "NGO Org 5",
+    "registrationNumber": "REG-STRESS-5-1790789773183",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:36:14.732Z",
+    "updatedAt": "2026-09-30T17:36:14.732Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd488ecf7e0cfe93f7b384",
+    "user": "6abd488ecf7e0cfe93f7b383",
+    "organizationName": "NGO Org 6",
+    "registrationNumber": "REG-STRESS-6-1790789773183",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:36:14.973Z",
+    "updatedAt": "2026-09-30T17:36:14.973Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd488fcf7e0cfe93f7b386",
+    "user": "6abd488fcf7e0cfe93f7b385",
+    "organizationName": "NGO Org 7",
+    "registrationNumber": "REG-STRESS-7-1790789773183",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:36:15.293Z",
+    "updatedAt": "2026-09-30T17:36:15.293Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd488fcf7e0cfe93f7b388",
+    "user": "6abd488fcf7e0cfe93f7b387",
+    "organizationName": "NGO Org 8",
+    "registrationNumber": "REG-STRESS-8-1790789773183",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:36:15.506Z",
+    "updatedAt": "2026-09-30T17:36:15.506Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd488fcf7e0cfe93f7b38a",
+    "user": "6abd488fcf7e0cfe93f7b389",
+    "organizationName": "NGO Org 9",
+    "registrationNumber": "REG-STRESS-9-1790789773183",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:36:15.702Z",
+    "updatedAt": "2026-09-30T17:36:15.702Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd48c486d9e8205b2b99d2",
+    "user": "6abd48c386d9e8205b2b99d1",
+    "organizationName": "Crash NGO Org",
+    "registrationNumber": "REG-CRASH-1790789826937",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:37:08.019Z",
+    "updatedAt": "2026-09-30T17:37:08.019Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4959a42833436269d34a",
+    "user": "6abd4959a42833436269d349",
+    "organizationName": "NGO Org A",
+    "registrationNumber": "REG-A-1790789976805",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:39:37.917Z",
+    "updatedAt": "2026-09-30T17:39:37.917Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd495aa42833436269d34c",
+    "user": "6abd4959a42833436269d34b",
+    "organizationName": "NGO Org B",
+    "registrationNumber": "REG-B-1790789976805",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T17:39:38.133Z",
+    "updatedAt": "2026-09-30T17:39:38.133Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4ea8f2b148754574e323",
+    "user": "6abd4ea7f2b148754574e322",
+    "organizationName": "Load NGO Partner",
+    "registrationNumber": "REG-LOAD-1790791335534",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:02:16.574Z",
+    "updatedAt": "2026-09-30T18:02:16.574Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4ef5102a7e339dac6e5f",
+    "user": "6abd4ef5102a7e339dac6e5e",
+    "organizationName": "Load NGO Partner",
+    "registrationNumber": "REG-LOAD-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:03:33.750Z",
+    "updatedAt": "2026-09-30T18:03:33.750Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f28102a7e339dacf9b6",
+    "user": "6abd4f27102a7e339dacf9b5",
+    "organizationName": "Colliding Org 0",
+    "registrationNumber": "REG-COLLIDE-0-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:04:24.006Z",
+    "updatedAt": "2026-09-30T18:04:24.006Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f28102a7e339dacf9b8",
+    "user": "6abd4f28102a7e339dacf9b7",
+    "organizationName": "Colliding Org 1",
+    "registrationNumber": "REG-COLLIDE-1-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:04:24.241Z",
+    "updatedAt": "2026-09-30T18:04:24.241Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f28102a7e339dacf9ba",
+    "user": "6abd4f28102a7e339dacf9b9",
+    "organizationName": "Colliding Org 2",
+    "registrationNumber": "REG-COLLIDE-2-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:04:24.480Z",
+    "updatedAt": "2026-09-30T18:04:24.480Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f28102a7e339dacf9bc",
+    "user": "6abd4f28102a7e339dacf9bb",
+    "organizationName": "Colliding Org 3",
+    "registrationNumber": "REG-COLLIDE-3-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:04:24.695Z",
+    "updatedAt": "2026-09-30T18:04:24.695Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f28102a7e339dacf9be",
+    "user": "6abd4f28102a7e339dacf9bd",
+    "organizationName": "Colliding Org 4",
+    "registrationNumber": "REG-COLLIDE-4-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:04:24.921Z",
+    "updatedAt": "2026-09-30T18:04:24.921Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f29102a7e339dacf9c0",
+    "user": "6abd4f28102a7e339dacf9bf",
+    "organizationName": "Colliding Org 5",
+    "registrationNumber": "REG-COLLIDE-5-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:04:25.147Z",
+    "updatedAt": "2026-09-30T18:04:25.147Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f29102a7e339dacf9c2",
+    "user": "6abd4f29102a7e339dacf9c1",
+    "organizationName": "Colliding Org 6",
+    "registrationNumber": "REG-COLLIDE-6-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:04:25.416Z",
+    "updatedAt": "2026-09-30T18:04:25.416Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f29102a7e339dacf9c4",
+    "user": "6abd4f29102a7e339dacf9c3",
+    "organizationName": "Colliding Org 7",
+    "registrationNumber": "REG-COLLIDE-7-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:04:25.657Z",
+    "updatedAt": "2026-09-30T18:04:25.657Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f29102a7e339dacf9c6",
+    "user": "6abd4f29102a7e339dacf9c5",
+    "organizationName": "Colliding Org 8",
+    "registrationNumber": "REG-COLLIDE-8-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:04:25.875Z",
+    "updatedAt": "2026-09-30T18:04:25.875Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f2a102a7e339dacf9c8",
+    "user": "6abd4f29102a7e339dacf9c7",
+    "organizationName": "Colliding Org 9",
+    "registrationNumber": "REG-COLLIDE-9-1790791412792",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:04:26.101Z",
+    "updatedAt": "2026-09-30T18:04:26.101Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd533ed37f300b2696041e",
+    "user": "6abd533ed37f300b2696041c",
+    "organizationName": "P Org",
+    "registrationNumber": "P-REG-1790792509854",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:21:50.796Z",
+    "updatedAt": "2026-09-30T18:21:50.796Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd53de155010e9a5928367",
+    "user": "6abd53de155010e9a5928365",
+    "organizationName": "P Org",
+    "registrationNumber": "P-REG-1790792669987",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:24:30.993Z",
+    "updatedAt": "2026-09-30T18:24:30.993Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd546a6b35d1c9d4766628",
+    "user": "6abd546a6b35d1c9d4766626",
+    "organizationName": "Alpha Org",
+    "registrationNumber": "REG-A-1790792809632",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:26:50.562Z",
+    "updatedAt": "2026-09-30T18:26:50.562Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd546a6b35d1c9d4766629",
+    "user": "6abd546a6b35d1c9d4766627",
+    "organizationName": "Beta Org",
+    "registrationNumber": "REG-B-1790792809632",
+    "address": {
+      "country": "India"
+    },
+    "categories": [
+      "Cooked Meals",
+      "Fresh Produce",
+      "Packaged Food"
+    ],
+    "pickupHours": "9 AM – 7 PM",
+    "responseTime": "Usually responds within 30 min",
+    "verificationStatus": "approved",
+    "createdAt": "2026-09-30T18:26:50.643Z",
+    "updatedAt": "2026-09-30T18:26:50.643Z",
+    "__v": 0
+  }
+]

@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
+const validateObjectId = require('../middleware/validateObjectId');
+
+// Validate all :id route parameters
+router.param('id', validateObjectId());
 const {
   getDashboardStats,
   getAllUsers,

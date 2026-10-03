@@ -8,7 +8,7 @@ import AlertMessage from '../../components/common/AlertMessage';
 const ResetPasswordPage = () => {
   const { token } = useParams();
   const navigate = useNavigate();
-  const { login } = useAuth(); // Actually just sets the user state if the API returns a login payload
+  const { login } = useAuth();
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,8 +35,7 @@ const ResetPasswordPage = () => {
     try {
       const res = await resetPassword(token, password);
       setStatus({ type: 'success', message: 'Password reset successfully!' });
-      
-      // Auto login and redirect if the API returns the token/user
+
       if (res.token && res.user) {
         setTimeout(() => {
           login(res.user, res.token);
@@ -55,28 +54,27 @@ const ResetPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f0e8] flex flex-col justify-center items-center p-4 sm:p-8 font-sans">
-      
+    <div className="min-h-screen bg-[#f8f6f0] flex flex-col justify-center items-center p-4 sm:p-8 font-body">
       {/* Brand / Logo */}
       <div className="mb-8 text-center animate-fade-in-up">
         <Link to="/" className="inline-flex items-center gap-2.5 no-underline group">
           <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-200">
             <span className="text-white text-base font-bold">🌱</span>
           </div>
-          <span className="text-2xl font-bold tracking-tight text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>
+          <span className="text-2xl font-bold tracking-tight text-[#172117]" style={{ fontFamily: 'var(--font-sans)' }}>
             Share<span className="text-primary-600 font-extrabold">Bite</span>
           </span>
         </Link>
       </div>
 
       {/* Reset Password Card */}
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-primary-900/5 p-8 sm:p-10 border border-[#e6ded3] animate-scale-in">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 font-outfit">
+      <div className="w-full max-w-md surface-card p-8 sm:p-10 shadow-sm animate-scale-in">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-extrabold text-[#172117] mb-2" style={{ fontFamily: 'var(--font-sans)' }}>
             Set New Password
           </h1>
-          <p className="text-gray-500 text-sm">
-            Enter a new, strong password below to access your account.
+          <p className="text-gray-500 text-xs sm:text-sm">
+            Enter a new, strong password below to regain access to your ShareBite account.
           </p>
         </div>
 
@@ -86,10 +84,9 @@ const ResetPasswordPage = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          {/* New Password */}
-          <div className="mb-5 animate-fade-in-up animate-stagger-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">
               New Password <span className="text-red-500">*</span>
             </label>
             <input
@@ -103,9 +100,8 @@ const ResetPasswordPage = () => {
             />
           </div>
 
-          {/* Confirm Password */}
-          <div className="mb-6 animate-fade-in-up animate-stagger-2">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">
               Confirm Password <span className="text-red-500">*</span>
             </label>
             <input
@@ -119,14 +115,13 @@ const ResetPasswordPage = () => {
             />
           </div>
 
-          {/* Submit */}
-          <div className="animate-fade-in-up animate-stagger-3 mb-6">
+          <div className="pt-2">
             <button
               type="submit"
               disabled={loading || status.type === 'success'}
-              className="btn-primary w-full py-2.5 cursor-pointer"
+              className="btn-primary w-full py-3 text-sm font-bold shadow-sm"
             >
-              {loading ? 'Resetting...' : 'Reset Password'}
+              {loading ? 'Resetting Password...' : 'Save New Password'}
             </button>
           </div>
         </form>

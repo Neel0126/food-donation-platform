@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import FormInput from '../../components/common/FormInput';
@@ -6,6 +6,7 @@ import PasswordInput from '../../components/common/PasswordInput';
 import AlertMessage from '../../components/common/AlertMessage';
 import { validateRegistrationForm } from '../../utils/validators';
 import { REGISTRATION_ROLES } from '../../utils/roleRedirect';
+import { getPublicNgos } from '../../services/authService';
 
 /**
  * Registration page — /register
@@ -23,12 +24,24 @@ const RegisterPage = () => {
     organizationName: '',
     registrationNumber: '',
     address: '',
+    associatedNgo: '',
+    vehicleType: 'bike',
+    vehicleNumber: '',
     terms: false,
   });
 
+  const [ngoList, setNgoList] = useState([]);
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    getPublicNgos()
+      .then((data) => {
+        if (Array.isArray(data)) setNgoList(data);
+      })
+      .catch((err) => console.error('Failed to load NGOs for signup:', err));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -36,7 +49,6 @@ const RegisterPage = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    // Clear the specific field error on change
     if (errors[name]) {
       setErrors((prev) => {
         const next = { ...prev };
@@ -46,11 +58,21 @@ const RegisterPage = () => {
     }
   };
 
+  const handleRoleSelect = (roleValue) => {
+    setFormData((prev) => ({ ...prev, role: roleValue }));
+    if (errors.role) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.role;
+        return next;
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError('');
 
-    // Validate
     const validationErrors = validateRegistrationForm(formData);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -61,7 +83,6 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      // Prepare payload (exclude confirmPassword and terms)
       const payload = {
         name: formData.name.trim(),
         email: formData.email.trim(),
@@ -70,15 +91,14 @@ const RegisterPage = () => {
         role: formData.role,
       };
 
-      // Add NGO-specific fields
       if (formData.role === 'ngo') {
         payload.organizationName = formData.organizationName.trim();
         payload.registrationNumber = formData.registrationNumber.trim();
         payload.address = formData.address.trim();
       }
 
-      // Add Volunteer-specific fields
       if (formData.role === 'volunteer') {
+        payload.associatedNgo = formData.associatedNgo;
         payload.vehicleType = formData.vehicleType || 'bike';
         if (formData.vehicleNumber) {
           payload.vehicleNumber = formData.vehicleNumber.trim();
@@ -86,7 +106,6 @@ const RegisterPage = () => {
       }
 
       await register(payload);
-      // AuthContext handles redirect after successful registration
     } catch (err) {
       setServerError(err.message || 'Registration failed. Please try again.');
     } finally {
@@ -95,15 +114,15 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f0e8] flex flex-col font-sans">
+    <div className="h-screen bg-[#f8f6f0] flex flex-col font-body overflow-hidden">
       {/* Header bar */}
-      <div className="bg-[#f5f0e8]/90 backdrop-blur-md border-b border-[#e6ded3] animate-fade-in">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center">
+      <div className="bg-[#f8f6f0]/95 backdrop-blur-md border-b border-[#e8e2d5] shrink-0 animate-fade-in z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center">
           <Link to="/" className="flex items-center gap-2.5 no-underline group">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-200">
-              <span className="text-white text-sm font-bold">🌱</span>
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-200">
+              <span className="text-white text-base">🌱</span>
             </div>
-            <span className="text-lg font-bold text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-sans)' }}>
+            <span className="text-xl font-bold text-[#172117] tracking-tight" style={{ fontFamily: 'var(--font-sans)' }}>
               Share<span className="text-primary-600 font-extrabold">Bite</span>
             </span>
           </Link>
@@ -111,34 +130,41 @@ const RegisterPage = () => {
       </div>
 
       {/* Split-screen content */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex overflow-hidden">
         {/* Left: Photo panel (hidden on mobile) */}
-        <div className="hidden lg:flex lg:w-5/12 relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-5/12 relative overflow-hidden bg-primary-900 h-full shrink-0">
           <img
             src="/images/food-packing.png"
             alt="Volunteers packing food donations"
-            className="absolute inset-0 w-full h-full object-cover animate-fade-in"
+            className="absolute inset-0 w-full h-full object-cover opacity-85 animate-fade-in"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <div className="relative z-10 flex flex-col justify-end p-10 animate-fade-in-up">
-            <h2 className="text-3xl font-bold text-white leading-tight mb-3" style={{ fontFamily: 'var(--font-sans)' }}>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#172117]/95 via-[#172117]/50 to-transparent" />
+          <div className="relative z-10 flex flex-col justify-end p-12 animate-fade-in-up">
+            <span className="text-xs font-bold uppercase tracking-widest text-primary-200 mb-2 drop-shadow-sm">
+              Empower Communities
+            </span>
+            <h2 
+              className="text-3xl sm:text-4xl font-extrabold !text-white text-white leading-tight mb-3 drop-shadow-md" 
+              style={{ fontFamily: 'var(--font-sans)', color: '#ffffff', textShadow: '0 2px 12px rgba(0,0,0,0.7)' }}
+            >
               Be the change<br />your community needs.
             </h2>
-            <p className="text-white/80 text-base max-w-md">
-              Whether you're a donor, an NGO, or a volunteer — your contribution makes a world of difference to families in need.
+            <p className="text-white/90 text-sm sm:text-base max-w-md leading-relaxed drop-shadow-sm">
+              Whether you are an individual food donor, a local relief charity, or a volunteer ready to move surplus meals, your action counts.
             </p>
           </div>
         </div>
 
         {/* Right: Form panel */}
-        <div className="flex-1 flex items-center justify-center py-8 px-4">
-          <div className="w-full max-w-lg animate-fade-in-up">
-            <div className="bg-white rounded-3xl shadow-md border border-[#e6ded3] p-6 sm:p-8">
-              {/* Heading */}
+        <div className="flex-1 overflow-y-auto py-8 sm:py-10 px-4 sm:px-6 flex flex-col">
+          <div className="w-full max-w-lg mx-auto my-auto animate-fade-in-up">
+            <div className="surface-card p-6 sm:p-8 shadow-sm">
               <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>Create your account</h1>
-                <p className="text-sm text-gray-500 mt-1">
-                  Join ShareBite and help reduce food waste
+                <h1 className="text-2xl font-extrabold text-[#172117]" style={{ fontFamily: 'var(--font-sans)' }}>
+                  Create your account
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                  Join ShareBite to donate food, dispatch volunteers, or receive meals
                 </p>
               </div>
 
@@ -151,22 +177,54 @@ const RegisterPage = () => {
                 />
               )}
 
-              <form onSubmit={handleSubmit} noValidate>
-                <div className="animate-fade-in-up animate-stagger-1">
-                  <FormInput
-                    label="Full Name"
-                    name="name"
-                    placeholder="Enter your full name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    error={errors.name}
-                    required
-                  />
+              <form onSubmit={handleSubmit} noValidate className="space-y-4">
+                {/* Role Selector with interactive cards */}
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                    Register As *
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {REGISTRATION_ROLES.map((r) => {
+                      const selected = formData.role === r.value;
+                      return (
+                        <button
+                          type="button"
+                          key={r.value}
+                          onClick={() => handleRoleSelect(r.value)}
+                          className={`p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
+                            selected
+                              ? 'bg-primary-100/80 border-primary-600 text-primary-900 font-bold shadow-2xs ring-2 ring-primary-200'
+                              : 'bg-white border-[#e8e2d5] text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span className="text-lg">
+                            {r.value === 'donor' ? '🍲' : r.value === 'ngo' ? '🏢' : '🚚'}
+                          </span>
+                          <span className="text-xs">{r.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {errors.role && (
+                    <p className="mt-1 text-xs text-red-500 font-semibold" role="alert">
+                      {errors.role}
+                    </p>
+                  )}
                 </div>
 
-                <div className="animate-fade-in-up animate-stagger-2">
+                <FormInput
+                  label="Full Name *"
+                  name="name"
+                  placeholder="Enter your full name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  error={errors.name}
+                  required
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormInput
-                    label="Email Address"
+                    label="Email Address *"
                     name="email"
                     type="email"
                     placeholder="you@example.com"
@@ -175,14 +233,12 @@ const RegisterPage = () => {
                     error={errors.email}
                     required
                   />
-                </div>
 
-                <div className="animate-fade-in-up animate-stagger-3">
                   <FormInput
-                    label="Phone Number"
+                    label="Phone Number *"
                     name="phone"
                     type="tel"
-                    placeholder="10-digit phone number"
+                    placeholder="10-digit mobile number"
                     value={formData.phone}
                     onChange={handleChange}
                     error={errors.phone}
@@ -190,9 +246,9 @@ const RegisterPage = () => {
                   />
                 </div>
 
-                <div className="animate-fade-in-up animate-stagger-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <PasswordInput
-                    label="Password"
+                    label="Password *"
                     name="password"
                     placeholder="At least 8 characters"
                     value={formData.password}
@@ -200,13 +256,11 @@ const RegisterPage = () => {
                     error={errors.password}
                     required
                   />
-                </div>
 
-                <div className="animate-fade-in-up animate-stagger-5">
                   <PasswordInput
-                    label="Confirm Password"
+                    label="Confirm Password *"
                     name="confirmPassword"
-                    placeholder="Re-enter your password"
+                    placeholder="Re-enter password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     error={errors.confirmPassword}
@@ -214,64 +268,34 @@ const RegisterPage = () => {
                   />
                 </div>
 
-                {/* Role selector */}
-                <div className="mb-4 animate-fade-in-up animate-stagger-6">
-                  <label
-                    htmlFor="role"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Register as <span className="text-red-500 ml-0.5">*</span>
-                  </label>
-                  <select
-                    id="role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    className={`input-field cursor-pointer ${errors.role ? 'input-error' : ''}`}
-                    aria-invalid={!!errors.role}
-                  >
-                    <option value="">Select your role</option>
-                    {REGISTRATION_ROLES.map((r) => (
-                      <option key={r.value} value={r.value}>
-                        {r.label}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.role && (
-                    <p className="mt-1 text-xs text-red-500" role="alert">
-                      {errors.role}
-                    </p>
-                  )}
-                </div>
-
                 {/* NGO-specific fields */}
                 {formData.role === 'ngo' && (
-                  <div className="p-4 mb-4 rounded-xl border border-primary-200 bg-primary-50/50 animate-fade-in-up">
-                    <p className="text-xs font-semibold text-primary-700 mb-3 uppercase tracking-wide" style={{ fontFamily: 'var(--font-sans)' }}>
-                      Organization Details
+                  <div className="p-4 rounded-2xl border border-primary-200 bg-primary-50/40 space-y-3 animate-fade-in">
+                    <p className="text-xs font-bold text-primary-800 uppercase tracking-wider">
+                      NGO Details
                     </p>
                     <FormInput
-                      label="Organization Name"
+                      label="Organization Name *"
                       name="organizationName"
-                      placeholder="Enter NGO/organization name"
+                      placeholder="e.g. Robin Hood Army / Annapurna Trust"
                       value={formData.organizationName}
                       onChange={handleChange}
                       error={errors.organizationName}
                       required
                     />
                     <FormInput
-                      label="Registration Number"
+                      label="Registration Number *"
                       name="registrationNumber"
-                      placeholder="NGO registration number"
+                      placeholder="Government Trust / NGO Certificate ID"
                       value={formData.registrationNumber}
                       onChange={handleChange}
                       error={errors.registrationNumber}
                       required
                     />
                     <FormInput
-                      label="Organization Address"
+                      label="Facility Address *"
                       name="address"
-                      placeholder="Full address"
+                      placeholder="Street, City, PIN Code"
                       value={formData.address}
                       onChange={handleChange}
                       error={errors.address}
@@ -283,31 +307,57 @@ const RegisterPage = () => {
 
                 {/* Volunteer-specific fields */}
                 {formData.role === 'volunteer' && (
-                  <div className="p-4 mb-4 rounded-xl border border-primary-200 bg-primary-50/50 animate-fade-in-up">
-                    <p className="text-xs font-semibold text-primary-700 mb-3 uppercase tracking-wide" style={{ fontFamily: 'var(--font-sans)' }}>
-                      Volunteer Vehicle Info
+                  <div className="p-4 rounded-2xl border border-primary-200 bg-primary-50/40 space-y-3 animate-fade-in">
+                    <p className="text-xs font-bold text-primary-800 uppercase tracking-wider">
+                      Volunteer Transport & Affiliation
                     </p>
-                    <div className="mb-3">
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Vehicle Type</label>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Select Affiliated NGO Partner *
+                      </label>
+                      <select
+                        name="associatedNgo"
+                        value={formData.associatedNgo}
+                        onChange={handleChange}
+                        className={`input-field ${errors.associatedNgo ? 'border-red-400' : ''}`}
+                        required
+                      >
+                        <option value="">-- Choose an NGO partner you volunteer with --</option>
+                        {ngoList.map((ngo) => (
+                          <option key={ngo.id} value={ngo.id}>
+                            {ngo.name} ({ngo.city})
+                          </option>
+                        ))}
+                      </select>
+                      {errors.associatedNgo && (
+                        <p className="text-red-500 text-xs mt-1">{errors.associatedNgo}</p>
+                      )}
+                      <p className="text-[11px] text-gray-500 mt-1">
+                        Every NGO maintains its own volunteer squad. You will be assigned pickups specifically for this partner.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">Vehicle Type</label>
                       <select
                         name="vehicleType"
-                        value={formData.vehicleType || 'bike'}
+                        value={formData.vehicleType}
                         onChange={handleChange}
-                        className="input-field bg-white"
+                        className="input-field"
                       >
                         <option value="bike">Motorcycle / Scooter</option>
                         <option value="car">Car / Sedan</option>
-                        <option value="van">Van / Mini Truck</option>
+                        <option value="van">Van / Small Truck</option>
                         <option value="bicycle">Bicycle</option>
-                        <option value="walk">On Foot / Walk</option>
-                        <option value="other">Other</option>
+                        <option value="other">On Foot / Public Transit</option>
                       </select>
                     </div>
                     <FormInput
-                      label="Vehicle License Plate / Number (Optional)"
+                      label="Vehicle Plate Number (Optional)"
                       name="vehicleNumber"
-                      placeholder="e.g. MH-01-AB-1234"
-                      value={formData.vehicleNumber || ''}
+                      placeholder="e.g. GJ-07-AB-1234"
+                      value={formData.vehicleNumber}
                       onChange={handleChange}
                       className="mb-0"
                     />
@@ -315,73 +365,45 @@ const RegisterPage = () => {
                 )}
 
                 {/* Terms checkbox */}
-                <div className="mb-5">
+                <div className="pt-1">
                   <label className="flex items-start gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       name="terms"
                       checked={formData.terms}
                       onChange={handleChange}
-                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                      className="mt-0.5 h-4 w-4 rounded border-[#e8e2d5] text-primary-600 focus:ring-primary-500 cursor-pointer"
                     />
-                    <span className="text-sm text-gray-600">
+                    <span className="text-xs text-gray-600">
                       I agree to the{' '}
-                      <span className="text-primary-600 font-medium cursor-pointer hover:text-primary-700 transition-colors duration-200">
-                        Terms and Conditions
+                      <span className="text-primary-700 font-bold hover:underline">
+                        Terms of Service
                       </span>{' '}
-                      and{' '}
-                      <span className="text-primary-600 font-medium cursor-pointer hover:text-primary-700 transition-colors duration-200">
-                        Privacy Policy
-                      </span>
+                      and food safety standards.
                     </span>
                   </label>
                   {errors.terms && (
-                    <p className="mt-1 ml-6 text-xs text-red-500" role="alert">
+                    <p className="mt-1 ml-6 text-xs text-red-500 font-semibold" role="alert">
                       {errors.terms}
                     </p>
                   )}
                 </div>
 
-                {/* Submit */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="btn-primary w-full py-2.5 cursor-pointer"
+                  className="w-full btn-primary py-3 text-sm font-bold shadow-md shadow-primary-900/10 hover:shadow-primary-900/20 cursor-pointer"
                 >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg
-                        className="animate-spin h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12" cy="12" r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                        />
-                      </svg>
-                      Creating account...
-                    </span>
-                  ) : (
-                    'Create Account'
-                  )}
+                  {loading ? 'Creating your account...' : 'Create Account'}
                 </button>
               </form>
 
-              {/* Login link */}
-              <p className="text-center text-sm text-gray-500 mt-5">
-                Already have an account?{' '}
-                <Link to="/login" className="text-primary-600 font-medium hover:text-primary-700 transition-colors duration-200">
+              <div className="mt-6 pt-5 border-t border-[#e8e2d5] text-center text-xs text-gray-500">
+                Already registered with ShareBite?{' '}
+                <Link to="/login" className="font-bold text-primary-700 hover:text-primary-800 transition-colors">
                   Log in
                 </Link>
-              </p>
+              </div>
             </div>
           </div>
         </div>

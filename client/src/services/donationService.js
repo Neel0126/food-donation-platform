@@ -27,3 +27,14 @@ export const cancelDonation = async (id) => {
   const response = await api.put(`/donations/${id}/cancel`);
   return response.data;
 };
+
+export const getPublicStats = async () => {
+  const response = await api.get('/donations/public-stats');
+  return response.data;
+};
+
+export const regeneratePickupOtp = async (id) => {
+  const response = await api.put(`/donations/${id}/regenerate-pickup-otp`);
+  return response.data;
+};
+

@@ -15,8 +15,13 @@ const {
   uploadDeliveryProof,
   verifyDeliveryOtp,
   completeTask,
-  getVolunteerStats
+  getVolunteerStats,
+  updateTaskLocation
 } = require('../controllers/volunteerController');
+const validateObjectId = require('../middleware/validateObjectId');
+
+// Validate all :id route parameters
+router.param('id', validateObjectId());
 
 // All volunteer routes require authentication & volunteer role
 router.use(protect);
@@ -38,6 +43,7 @@ router.get('/tasks/:id', getTaskById);
 // Task Actions
 router.put('/tasks/:id/accept', acceptTask);
 router.put('/tasks/:id/reject', rejectTask);
+router.put('/tasks/:id/location', updateTaskLocation);
 router.post('/tasks/:id/verify-pickup', verifyPickupOtp);
 router.post('/tasks/:id/delivery-proof', upload.single('proof'), uploadDeliveryProof);
 router.post('/tasks/:id/verify-delivery', verifyDeliveryOtp);

@@ -97,3 +97,16 @@ export const resetPassword = async (token, password) => {
     handleError(error);
   }
 };
+
+/**
+ * Get public list of NGOs for registration
+ * GET /auth/ngos
+ */
+export const getPublicNgos = async () => {
+  try {
+    const response = await api.get('/auth/ngos');
+    return response.data;
+  } catch (error) {
+    handleError(error);
+  }
+};

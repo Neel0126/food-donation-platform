@@ -28,7 +28,9 @@ const EditDonationModal = ({ isOpen, onClose, onSubmit, isLoading, donation }) =
       const getImageUrl = (url) => {
         if (!url) return null;
         if (url.startsWith('/uploads/')) {
-          const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:3001';
+          const baseUrl = import.meta.env.VITE_API_URL
+            ? import.meta.env.VITE_API_URL.replace('/api', '')
+            : 'http://localhost:3001';
           return `${baseUrl}${url}`;
         }
         return url;
@@ -54,18 +56,21 @@ const EditDonationModal = ({ isOpen, onClose, onSubmit, isLoading, donation }) =
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const data = new FormData();
     data.append('foodType', formData.foodType);
     data.append('quantity', formData.quantity);
     data.append('description', formData.description);
-    data.append('pickupLocation', JSON.stringify({
-      street: formData.street,
-      city: formData.city,
-      state: formData.state,
-      zipCode: formData.zipCode
-    }));
-    
+    data.append(
+      'pickupLocation',
+      JSON.stringify({
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+      })
+    );
+
     if (image) {
       data.append('image', image);
     }
@@ -74,88 +79,107 @@ const EditDonationModal = ({ isOpen, onClose, onSubmit, isLoading, donation }) =
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 overflow-y-auto animate-fade-in">
-      <div className="bg-white rounded-2xl w-full max-w-2xl my-8 relative flex flex-col max-h-[90vh] border border-primary-100 shadow-xl animate-scale-in">
-        <div className="flex justify-between items-center p-6 border-b border-primary-50 shrink-0">
-          <h2 className="text-xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>Edit Donation</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-primary-600 transition-colors duration-200 cursor-pointer p-1 rounded-lg hover:bg-primary-50">
-            <HiX size={24} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 overflow-y-auto animate-fade-in">
+      <div className="bg-white rounded-3xl w-full max-w-2xl my-6 relative flex flex-col max-h-[90vh] border border-[#e8e2d5] shadow-2xl animate-scale-in">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-[#e8e2d5] shrink-0 bg-[#faf8f4] rounded-t-3xl">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-primary-700">
+              Update Listing
+            </span>
+            <h2 className="text-xl font-bold text-[#172117]" style={{ fontFamily: 'var(--font-sans)' }}>
+              Edit Food Donation
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-700 p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+            aria-label="Close modal"
+          >
+            <HiX size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto">
-          <div className="space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto flex-1">
+          <div className="space-y-4">
             {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Update Food Image</label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-primary-200 border-dashed rounded-2xl hover:border-primary-400 transition-colors duration-200 bg-primary-50/30">
-                <div className="space-y-1 text-center">
+              <label className="block text-xs font-bold text-gray-700 mb-1">Update Food Image</label>
+              <div className="border-2 border-dashed border-[#e8e2d5] hover:border-primary-400 rounded-2xl p-4 text-center bg-[#faf8f4] transition-colors">
+                <div className="space-y-2">
                   {preview ? (
                     <div className="relative inline-block">
-                      <img src={preview} alt="Preview" className="h-40 w-auto rounded-xl object-cover shadow-sm" />
-                      <button 
-                        type="button" 
-                        onClick={() => { setImage(null); setPreview(null); }}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors duration-200 cursor-pointer"
+                      <img src={preview} alt="Preview" className="h-32 w-auto object-cover rounded-xl shadow-xs" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImage(null);
+                          setPreview(null);
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 cursor-pointer"
                       >
                         <HiX size={14} />
                       </button>
                     </div>
                   ) : (
                     <>
-                      <HiUpload className="mx-auto h-12 w-12 text-primary-300" />
-                      <div className="flex text-sm text-gray-600 justify-center">
-                        <label className="relative cursor-pointer bg-white rounded-lg px-2 py-1 font-medium text-primary-600 hover:text-primary-700 focus-within:outline-none transition-colors duration-200">
-                          <span>Upload a file</span>
+                      <HiUpload className="mx-auto h-8 w-8 text-primary-500" />
+                      <div className="flex justify-center text-xs text-gray-600">
+                        <label className="cursor-pointer bg-white px-3 py-1.5 rounded-lg border border-[#e8e2d5] font-semibold text-primary-700 hover:bg-primary-50 shadow-2xs">
+                          <span>Change file</span>
                           <input type="file" name="image" accept="image/*" onChange={handleImageChange} className="sr-only" />
                         </label>
                       </div>
-                      <p className="text-xs text-gray-400">PNG, JPG, WEBP up to 5MB</p>
+                      <p className="text-[11px] text-gray-400">PNG, JPG, WEBP up to 5MB</p>
                     </>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Food Type *</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Food Name / Type *</label>
                 <input
                   type="text"
                   name="foodType"
                   value={formData.foodType}
                   onChange={handleChange}
                   required
+                  placeholder="e.g. Cooked Meals, Rice, Bread"
                   className="input-field"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Quantity *</label>
                 <input
                   type="text"
                   name="quantity"
                   value={formData.quantity}
                   onChange={handleChange}
                   required
+                  placeholder="e.g. 50 meals, 20 kgs"
                   className="input-field"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Description</label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                rows="3"
+                rows={3}
                 className="input-field"
+                placeholder="Add special instructions or dietary info..."
               />
             </div>
 
-            <div className="bg-primary-50/50 p-4 rounded-2xl border border-primary-100">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3" style={{ fontFamily: 'var(--font-sans)' }}>Pickup Location *</h3>
-              <div className="space-y-4">
+            <div className="bg-[#faf8f4] p-4 rounded-2xl border border-[#e8e2d5]">
+              <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider mb-3" style={{ fontFamily: 'var(--font-sans)' }}>
+                Pickup Address *
+              </h3>
+              <div className="space-y-3">
                 <div>
                   <input
                     type="text"
@@ -164,7 +188,7 @@ const EditDonationModal = ({ isOpen, onClose, onSubmit, isLoading, donation }) =
                     onChange={handleChange}
                     required
                     placeholder="Street Address"
-                    className="input-field text-sm"
+                    className="input-field"
                   />
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -175,7 +199,7 @@ const EditDonationModal = ({ isOpen, onClose, onSubmit, isLoading, donation }) =
                     onChange={handleChange}
                     required
                     placeholder="City"
-                    className="input-field text-sm"
+                    className="input-field"
                   />
                   <input
                     type="text"
@@ -184,7 +208,7 @@ const EditDonationModal = ({ isOpen, onClose, onSubmit, isLoading, donation }) =
                     onChange={handleChange}
                     required
                     placeholder="State"
-                    className="input-field text-sm"
+                    className="input-field"
                   />
                   <input
                     type="text"
@@ -193,25 +217,25 @@ const EditDonationModal = ({ isOpen, onClose, onSubmit, isLoading, donation }) =
                     onChange={handleChange}
                     required
                     placeholder="Zip/PIN Code"
-                    className="input-field col-span-2 md:col-span-1 text-sm"
+                    className="input-field col-span-2 md:col-span-1"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-primary-50">
+          <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e8e2d5]">
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary cursor-pointer"
+              className="btn-secondary cursor-pointer text-xs sm:text-sm px-4 py-2"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-primary cursor-pointer disabled:opacity-50"
+              className="btn-primary cursor-pointer disabled:opacity-50 text-xs sm:text-sm px-5 py-2 shadow-sm"
             >
               {isLoading ? 'Saving...' : 'Save Changes'}
             </button>

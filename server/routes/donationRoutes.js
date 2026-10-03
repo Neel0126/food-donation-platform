@@ -6,11 +6,19 @@ const {
   getDonationById,
   updateDonation,
   cancelDonation,
+  regeneratePickupOtp,
+  getPublicStats,
 } = require('../controllers/donationController');
 const { protect, authorize } = require('../middleware/auth');
 const upload = require('../middleware/upload');
+const validateObjectId = require('../middleware/validateObjectId');
 
-// All donation routes require authentication, some specific to donors
+router.param('id', validateObjectId());
+
+// Public endpoints (no authentication required)
+router.get('/public-stats', getPublicStats);
+
+// All subsequent donation routes require authentication
 router.use(protect);
 
 router.route('/')
@@ -22,5 +30,6 @@ router.route('/:id')
   .put(authorize('donor'), upload.single('image'), updateDonation);
 
 router.put('/:id/cancel', authorize('donor'), cancelDonation);
+router.put('/:id/regenerate-pickup-otp', authorize('donor'), regeneratePickupOtp);
 
 module.exports = router;

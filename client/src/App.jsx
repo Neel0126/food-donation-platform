@@ -46,6 +46,25 @@ const RootHandler = () => {
   return <HomePage />;
 };
 
+/**
+ * /dashboard smart redirect — used by email links.
+ * Sends the user to their role-specific dashboard after login.
+ * If not logged in, redirects to /login with ?redirect=/dashboard so they
+ * land here after authenticating.
+ */
+const DashboardRedirect = () => {
+  const { isAuthenticated, user, loading } = useAuth();
+
+  if (loading) return <LoadingSpinner fullScreen />;
+
+  if (isAuthenticated && user) {
+    return <Navigate to={getDashboardPath(user.role)} replace />;
+  }
+
+  // Not logged in — send to login; after login they'll be redirected to dashboard
+  return <Navigate to="/login" replace />;
+};
+
 function App() {
   return (
     <Routes>
@@ -56,6 +75,10 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+      {/* Email deep-link: /dashboard → smart redirect to role-specific dashboard */}
+      <Route path="/dashboard" element={<DashboardRedirect />} />
+      <Route path="/dashboard/*" element={<DashboardRedirect />} />
 
       {/* Protected routes — require authentication */}
       <Route element={<ProtectedRoute />}>

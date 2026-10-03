@@ -9,24 +9,27 @@ const NotFoundPage = () => {
   const { user, isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center px-4 font-sans">
+    <div className="min-h-screen bg-[#f8f6f0] flex items-center justify-center px-4 font-body">
       <div className="text-center max-w-md animate-fade-in-up">
-        {/* Large 404 text */}
-        <div className="mb-4">
-          <span className="text-8xl font-bold text-primary-200 animate-float inline-block" style={{ fontFamily: 'var(--font-sans)' }}>404</span>
+        <div className="mb-3">
+          <span className="text-8xl font-extrabold text-primary-200 inline-block" style={{ fontFamily: 'var(--font-sans)' }}>
+            404
+          </span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2" style={{ fontFamily: 'var(--font-sans)' }}>Page Not Found</h1>
-        <p className="text-gray-500 mb-6">
-          Oops! The page you're looking for doesn't exist. It may have been moved or the link might be incorrect.
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#172117] mb-2" style={{ fontFamily: 'var(--font-sans)' }}>
+          Page Not Found
+        </h1>
+        <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+          The link you followed may be expired or the address might be mistyped. Let's get you back to sharing food.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           {isAuthenticated && user ? (
-            <Link to={getDashboardPath(user.role)} className="btn-primary no-underline">
+            <Link to={getDashboardPath(user.role)} className="btn-primary no-underline px-6 py-2.5">
               Go to Dashboard
             </Link>
           ) : (
-            <Link to="/login" className="btn-primary no-underline">
-              Go to Login
+            <Link to="/" className="btn-primary no-underline px-6 py-2.5">
+              Return Home
             </Link>
           )}
         </div>

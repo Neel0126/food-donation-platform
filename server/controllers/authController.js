@@ -34,14 +34,29 @@ const registerUser = async (req, res) => {
   } = req.body;
 
   try {
+    // Mass assignment guard: Prevent self-registering as admin
+    const allowedRegistrationRoles = ['donor', 'ngo', 'volunteer'];
+    const assignedRole = (role || 'donor').toLowerCase().trim();
+    if (!allowedRegistrationRoles.includes(assignedRole)) {
+      return res.status(400).json({ message: 'Invalid role. Allowed roles: donor, ngo, volunteer.' });
+    }
+
     // Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Check if phone number is already registered
+    if (phone && phone.trim()) {
+      const phoneExists = await User.findOne({ phone: phone.trim() });
+      if (phoneExists) {
+        return res.status(400).json({ message: 'Phone number already registered' });
+      }
+    }
+
     // Determine verification status
-    const isVerified = role === 'ngo' ? false : true;
+    const isVerified = assignedRole === 'ngo' ? false : true;
 
     // Create user
     const user = await User.create({
@@ -49,7 +64,7 @@ const registerUser = async (req, res) => {
       email,
       password,
       phone,
-      role,
+      role: assignedRole,
       address,
       isVerified
     });
@@ -78,6 +93,7 @@ const registerUser = async (req, res) => {
       if (role === 'volunteer') {
         const volunteerProfile = await VolunteerProfile.create({
           user: user._id,
+          associatedNgo: req.body.associatedNgo || null,
           vehicleType: vehicleType || 'bike',
           vehicleNumber: vehicleNumber || '',
           address: {
@@ -85,6 +101,7 @@ const registerUser = async (req, res) => {
           }
         });
         additionalData = {
+          associatedNgo: volunteerProfile.associatedNgo,
           vehicleType: volunteerProfile.vehicleType,
           vehicleNumber: volunteerProfile.vehicleNumber,
           availabilityStatus: volunteerProfile.availabilityStatus,
@@ -151,6 +168,7 @@ const loginUser = async (req, res) => {
           });
         }
         additionalData = {
+          associatedNgo: volunteerProfile.associatedNgo,
           vehicleType: volunteerProfile.vehicleType,
           vehicleNumber: volunteerProfile.vehicleNumber,
           availabilityStatus: volunteerProfile.availabilityStatus,
@@ -159,6 +177,8 @@ const loginUser = async (req, res) => {
           rating: volunteerProfile.rating
         };
       }
+
+      req.recordLoginSuccess?.();
 
       res.json({
         token: generateToken(user._id),
@@ -174,6 +194,7 @@ const loginUser = async (req, res) => {
         }
       });
     } else {
+      req.recordLoginFailure?.();
       res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
@@ -214,6 +235,7 @@ const getUserProfile = async (req, res) => {
           });
         }
         additionalData = {
+          associatedNgo: volunteerProfile.associatedNgo,
           vehicleType: volunteerProfile.vehicleType,
           vehicleNumber: volunteerProfile.vehicleNumber,
           availabilityStatus: volunteerProfile.availabilityStatus,
@@ -436,6 +458,28 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// @desc    Get public list of NGOs for volunteer signup dropdown
+// @route   GET /api/auth/ngos
+// @access  Public
+const getPublicNgoList = async (req, res) => {
+  try {
+    const ngos = await NgoProfile.find({ verificationStatus: 'approved' })
+      .populate('user', 'name address')
+      .select('organizationName address user');
+
+    const formatted = ngos.map((n) => ({
+      id: n.user?._id || n._id,
+      name: n.organizationName || n.user?.name || 'Verified NGO',
+      city: n.address?.city || n.user?.address || 'Local Community',
+    }));
+
+    res.status(200).json(formatted);
+  } catch (error) {
+    console.error('Error in getPublicNgoList:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -443,4 +487,5 @@ module.exports = {
   updateUserProfile,
   forgotPassword,
   resetPassword,
+  getPublicNgoList,
 };

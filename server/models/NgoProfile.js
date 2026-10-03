@@ -29,6 +29,30 @@ const ngoProfileSchema = new mongoose.Schema({
   website: {
     type: String
   },
+  coverImageUrl: {
+    type: String
+  },
+  coverImagePublicId: {
+    type: String
+  },
+  logoUrl: {
+    type: String
+  },
+  logoPublicId: {
+    type: String
+  },
+  categories: {
+    type: [String],
+    default: ['Cooked Meals', 'Fresh Produce', 'Packaged Food']
+  },
+  pickupHours: {
+    type: String,
+    default: '9 AM – 7 PM'
+  },
+  responseTime: {
+    type: String,
+    default: 'Usually responds within 30 min'
+  },
   documentUrl: {
     type: String
   },
@@ -41,6 +65,8 @@ const ngoProfileSchema = new mongoose.Schema({
     default: 'pending'
   }
 }, { timestamps: true });
+
+ngoProfileSchema.index({ verificationStatus: 1 });
 
 const NgoProfile = mongoose.model('NgoProfile', ngoProfileSchema);
 module.exports = NgoProfile;

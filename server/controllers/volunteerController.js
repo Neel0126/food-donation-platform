@@ -4,6 +4,7 @@ const NgoProfile = require('../models/NgoProfile');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const { generateOtp } = require('../utils/otpUtils');
+const { sanitizeDonationForUser, isValidDonationTransition } = require('../utils/stateMachine');
 const sendEmail = require('../utils/sendEmail');
 const emailTemplates = require('../utils/emailTemplates');
 
@@ -13,6 +14,7 @@ const emailTemplates = require('../utils/emailTemplates');
 const getVolunteerProfile = async (req, res) => {
   try {
     let profile = await VolunteerProfile.findOne({ user: req.user._id })
+      .populate('associatedNgo', 'name email phone address')
       .populate('ratings.ratedBy', 'name');
 
     if (!profile) {
@@ -142,6 +144,8 @@ const getAvailableTasks = async (req, res) => {
   try {
     const { city, search } = req.query;
 
+    const volProfile = await VolunteerProfile.findOne({ user: req.user._id });
+
     let filter = {
       volunteerRequested: true,
       status: 'accepted',
@@ -151,6 +155,11 @@ const getAvailableTasks = async (req, res) => {
         { assignedVolunteer: req.user._id, volunteerStatus: 'assigned' }
       ]
     };
+
+    // If volunteer is affiliated with an NGO, only show tasks from their organization
+    if (volProfile && volProfile.associatedNgo) {
+      filter.acceptedBy = volProfile.associatedNgo;
+    }
 
     if (search && search.trim()) {
       const searchRegex = new RegExp(search.trim(), 'i');
@@ -172,14 +181,75 @@ const getAvailableTasks = async (req, res) => {
     const tasks = await Donation.find(filter)
       .select('-pickupOtp -deliveryOtp')
       .populate('donor', 'name phone email address')
-      .populate('acceptedBy', 'name phone email')
+      .populate('acceptedBy', 'name phone email address')
       .sort({ createdAt: -1 });
 
-    res.json(tasks);
+    const enriched = await enrichTasksWithNgoDetails(tasks);
+    res.json(enriched);
   } catch (error) {
     console.error('Error in getAvailableTasks:', error);
     res.status(500).json({ message: 'Server error fetching available tasks' });
   }
+};
+
+// Helper function to enrich donation tasks with complete NGO organization details
+const enrichTasksWithNgoDetails = async (tasks) => {
+  if (!tasks || tasks.length === 0) return tasks;
+  const ngoUserIds = tasks.map((t) => t.acceptedBy?._id || t.acceptedBy).filter(Boolean);
+  if (ngoUserIds.length === 0) return tasks;
+
+  const profiles = await NgoProfile.find({ user: { $in: ngoUserIds } }).lean();
+  const profileMap = new Map();
+  profiles.forEach((p) => profileMap.set(p.user.toString(), p));
+
+  return tasks.map((t) => {
+    const taskObj = t.toObject ? t.toObject() : { ...t };
+    const ngoUserId = taskObj.acceptedBy?._id
+      ? taskObj.acceptedBy._id.toString()
+      : taskObj.acceptedBy
+      ? taskObj.acceptedBy.toString()
+      : null;
+
+    if (ngoUserId && profileMap.has(ngoUserId)) {
+      const ngoProf = profileMap.get(ngoUserId);
+      taskObj.ngoOrganization = {
+        organizationName: ngoProf.organizationName || 'NGO Community Partner',
+        registrationNumber: ngoProf.registrationNumber,
+        address: ngoProf.address,
+        description: ngoProf.description,
+        website: ngoProf.website,
+      };
+
+      // Enrich dropoffLocation with the organization's street and landmark
+      const street = taskObj.dropoffLocation?.street && taskObj.dropoffLocation.street !== 'Nadiad'
+        ? taskObj.dropoffLocation.street
+        : (ngoProf.address?.street || taskObj.acceptedBy?.address || 'Community Relief Center');
+      const city = taskObj.dropoffLocation?.city || ngoProf.address?.city || 'Nadiad';
+      const state = taskObj.dropoffLocation?.state || ngoProf.address?.state || 'Gujarat';
+      const zipCode = taskObj.dropoffLocation?.zipCode || ngoProf.address?.zipCode || '';
+
+      taskObj.dropoffLocation = {
+        street,
+        city,
+        state,
+        zipCode,
+      };
+    } else if (taskObj.acceptedBy) {
+      taskObj.ngoOrganization = {
+        organizationName: taskObj.acceptedBy.name ? `${taskObj.acceptedBy.name} Relief Foundation` : 'NGO Partner',
+        address: { street: taskObj.acceptedBy.address || '', city: 'Nadiad' }
+      };
+      if (!taskObj.dropoffLocation || !taskObj.dropoffLocation.street || taskObj.dropoffLocation.street === 'Nadiad') {
+        taskObj.dropoffLocation = {
+          street: taskObj.acceptedBy.address || 'Civil Hospital Road',
+          city: 'Nadiad',
+          state: 'Gujarat',
+          zipCode: ''
+        };
+      }
+    }
+    return taskObj;
+  });
 };
 
 // @desc    Get volunteer's assigned / accepted / completed tasks
@@ -199,10 +269,11 @@ const getMyTasks = async (req, res) => {
     const tasks = await Donation.find(filter)
       .select('-pickupOtp -deliveryOtp')
       .populate('donor', 'name phone email address')
-      .populate('acceptedBy', 'name phone email')
+      .populate('acceptedBy', 'name phone email address')
       .sort({ updatedAt: -1 });
 
-    res.json(tasks);
+    const enriched = await enrichTasksWithNgoDetails(tasks);
+    res.json(enriched);
   } catch (error) {
     console.error('Error in getMyTasks:', error);
     res.status(500).json({ message: 'Server error fetching volunteer tasks' });
@@ -217,7 +288,7 @@ const getTaskById = async (req, res) => {
     const task = await Donation.findById(req.params.id)
       .select('-pickupOtp -deliveryOtp')
       .populate('donor', 'name phone email address')
-      .populate('acceptedBy', 'name phone email');
+      .populate('acceptedBy', 'name phone email address');
 
     if (!task) {
       return res.status(404).json({ message: 'Task not found' });
@@ -231,7 +302,8 @@ const getTaskById = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to view this task' });
     }
 
-    res.json(task);
+    const [enrichedTask] = await enrichTasksWithNgoDetails([task]);
+    res.json(enrichedTask);
   } catch (error) {
     console.error('Error in getTaskById:', error);
     res.status(500).json({ message: 'Server error fetching task details' });
@@ -249,6 +321,22 @@ const acceptTask = async (req, res) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
+    // Case 3 & 9: If this volunteer already accepted this task, respond idempotently
+    if (
+      task.assignedVolunteer &&
+      task.assignedVolunteer.toString() === req.user._id.toString() &&
+      task.volunteerStatus === 'accepted'
+    ) {
+      const existingTask = await Donation.findById(task._id)
+        .select('-pickupOtp -deliveryOtp')
+        .populate('donor', 'name phone email address')
+        .populate('acceptedBy', 'name phone email');
+      return res.status(200).json({
+        message: 'Task already accepted by you.',
+        task: existingTask
+      });
+    }
+
     if (!task.volunteerRequested) {
       return res.status(400).json({ message: 'Volunteer has not been requested for this donation' });
     }
@@ -259,7 +347,7 @@ const acceptTask = async (req, res) => {
       task.assignedVolunteer.toString() !== req.user._id.toString() &&
       task.volunteerStatus === 'accepted'
     ) {
-      return res.status(400).json({ message: 'This task has already been accepted by another volunteer' });
+      return res.status(409).json({ message: 'This task has already been accepted by another volunteer' });
     }
 
     // If task is not in accepted or assigned status
@@ -267,20 +355,26 @@ const acceptTask = async (req, res) => {
       return res.status(400).json({ message: `Cannot accept task with status: ${task.status}` });
     }
 
-    // Generate OTPs if not already generated
-    if (!task.pickupOtp) {
-      task.pickupOtp = generateOtp();
-    }
-    if (!task.deliveryOtp) {
-      task.deliveryOtp = generateOtp();
+    // Case 2: Ensure task hasn't expired
+    if (task.expiresAt && task.expiresAt <= new Date()) {
+      return res.status(400).json({ message: 'Cannot accept task: donation pickup window has expired.' });
     }
 
-    // If dropoff location not set, attempt to get it from NGO profile
-    if (!task.dropoffLocation || !task.dropoffLocation.street) {
+    // Case 38: Volunteer capacity check (max 3 concurrent active deliveries)
+    const existingVolProfile = await VolunteerProfile.findOne({ user: req.user._id });
+    if (existingVolProfile && (existingVolProfile.activeDeliveries || 0) >= 3) {
+      return res.status(400).json({
+        message: 'You have reached the maximum concurrent active deliveries limit (3). Please complete an active task first.'
+      });
+    }
+
+    // Prepare dropoff location if not present
+    let dropoffLocation = task.dropoffLocation;
+    if (!dropoffLocation || !dropoffLocation.street) {
       if (task.acceptedBy) {
         const ngoProfile = await NgoProfile.findOne({ user: task.acceptedBy });
         if (ngoProfile && ngoProfile.address) {
-          task.dropoffLocation = {
+          dropoffLocation = {
             street: ngoProfile.address.street || '',
             city: ngoProfile.address.city || '',
             state: ngoProfile.address.state || '',
@@ -290,37 +384,71 @@ const acceptTask = async (req, res) => {
       }
     }
 
-    task.assignedVolunteer = req.user._id;
-    task.volunteerStatus = 'accepted';
-    task.status = 'assigned';
-    task.timeline.push({ status: 'assigned', description: 'Volunteer accepted the pickup task' });
+    // Case 1 & 3: Atomic update to prevent two volunteers claiming simultaneously
+    const updatedTask = await Donation.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        volunteerRequested: true,
+        status: { $in: ['accepted', 'assigned'] },
+        $or: [
+          { assignedVolunteer: null },
+          { assignedVolunteer: { $exists: false } },
+          { assignedVolunteer: req.user._id }
+        ]
+      },
+      {
+        $set: {
+          assignedVolunteer: req.user._id,
+          volunteerStatus: 'accepted',
+          status: 'assigned',
+          pickupOtp: task.pickupOtp || generateOtp(),
+          deliveryOtp: task.deliveryOtp || generateOtp(),
+          ...(dropoffLocation ? { dropoffLocation } : {})
+        },
+        $push: {
+          timeline: { status: 'assigned', description: 'Volunteer accepted the pickup task', time: new Date() }
+        }
+      },
+      { new: true }
+    );
 
-    await task.save();
-
-    // Update volunteer profile
-    let profile = await VolunteerProfile.findOne({ user: req.user._id });
-    if (profile) {
-      profile.activeDeliveries += 1;
-      profile.availabilityStatus = 'busy';
-      await profile.save();
+    if (!updatedTask) {
+      return res.status(409).json({ message: 'This task was already claimed by another volunteer.' });
     }
 
-    await Notification.create({
-      user: task.donor,
-      message: 'A volunteer has accepted the pickup task for your donation.',
-      type: 'donation_status',
-      relatedDonation: task._id
-    });
+    // Update volunteer profile safely
+    try {
+      let profile = await VolunteerProfile.findOne({ user: req.user._id });
+      if (profile) {
+        profile.activeDeliveries = (profile.activeDeliveries || 0) + 1;
+        profile.availabilityStatus = 'busy';
+        await profile.save();
+      }
+    } catch (profileErr) {
+      console.error('[VolunteerProfileError] Error updating activeDeliveries:', profileErr.message);
+    }
+
+    // Case 8: Notification safe execution
+    try {
+      await Notification.create({
+        user: updatedTask.donor,
+        message: 'A volunteer has accepted the pickup task for your donation.',
+        type: 'donation_status',
+        relatedDonation: updatedTask._id
+      });
+    } catch (notifErr) {
+      console.error('[NotificationError] Error creating volunteer accepted notification:', notifErr.message);
+    }
 
     // Fetch populated task without exposing OTPs to volunteer
-    const updatedTask = await Donation.findById(task._id)
+    const populated = await Donation.findById(updatedTask._id)
       .select('-pickupOtp -deliveryOtp')
       .populate('donor', 'name phone email address')
       .populate('acceptedBy', 'name phone email');
 
     res.json({
       message: 'Task accepted successfully. Please coordinate with the donor for pickup OTP upon arrival.',
-      task: updatedTask
+      task: populated
     });
   } catch (error) {
     console.error('Error in acceptTask:', error);
@@ -374,6 +502,18 @@ const rejectTask = async (req, res) => {
       }
     }
 
+    // Case 13: Notify NGO partner that volunteer rejected/released the task
+    if (task.acceptedBy) {
+      try {
+        await Notification.create({
+          user: task.acceptedBy,
+          message: `Volunteer ${req.user.name} released pickup task for "${task.foodType}". It has been returned to the available pool.`,
+          type: 'volunteer_assignment',
+          relatedDonation: task._id
+        });
+      } catch (err) {}
+    }
+
     res.json({
       message: 'Task rejected. It is now back in the available pool for other volunteers.',
       taskId: task._id
@@ -409,11 +549,30 @@ const verifyPickupOtp = async (req, res) => {
     }
 
     if (task.pickupOtpVerified) {
-      return res.status(400).json({ message: 'Pickup has already been verified for this task' });
+      const alreadyVerified = await Donation.findById(task._id)
+        .select('-pickupOtp -deliveryOtp')
+        .populate('donor', 'name phone email address')
+        .populate('acceptedBy', 'name phone email');
+      return res.status(200).json({
+        message: 'Pickup has already been verified for this task.',
+        task: alreadyVerified
+      });
+    }
+
+    // Case 21 & 22: Brute-force & Wrong OTP limit (max 5 attempts)
+    if ((task.pickupOtpAttempts || 0) >= 5) {
+      return res.status(429).json({
+        message: 'Too many incorrect pickup OTP attempts (5/5). Pickup verification is locked for security. Please request a new code or contact support.'
+      });
     }
 
     if (task.pickupOtp !== otp.toString().trim()) {
-      return res.status(400).json({ message: 'Invalid pickup OTP. Please verify the code with the donor.' });
+      task.pickupOtpAttempts = (task.pickupOtpAttempts || 0) + 1;
+      await task.save();
+      const remaining = 5 - task.pickupOtpAttempts;
+      return res.status(400).json({
+        message: `Invalid pickup OTP. ${remaining} attempt(s) remaining before verification lock.`
+      });
     }
 
     task.pickupOtpVerified = true;
@@ -424,22 +583,31 @@ const verifyPickupOtp = async (req, res) => {
 
     await task.save();
 
-    await Notification.create({
-      user: task.donor,
-      message: 'Your donation has been picked up by the volunteer!',
-      type: 'donation_status',
-      relatedDonation: task._id
-    });
-
-    // Email notification (fire-and-forget)
-    const donorUser = await User.findById(task.donor);
-    if (donorUser?.email) {
-      const tpl = emailTemplates.donationPickedUp({
-        donorName: donorUser.name,
-        foodType: task.foodType,
-        volunteerName: req.user.name
+    // Case 8: Notification & email safety
+    try {
+      await Notification.create({
+        user: task.donor,
+        message: 'Your donation has been picked up by the volunteer!',
+        type: 'donation_status',
+        relatedDonation: task._id
       });
-      sendEmail({ email: donorUser.email, subject: tpl.subject, html: tpl.html, message: tpl.text }).catch(() => {});
+    } catch (notifErr) {
+      console.error('[NotificationError] Error creating pickup notification:', notifErr.message);
+    }
+
+    try {
+      const donorUser = await User.findById(task.donor);
+      if (donorUser?.email) {
+        const tpl = emailTemplates.donationPickedUp({
+          donorName: donorUser.name,
+          foodType: task.foodType,
+          volunteerName: req.user.name,
+          donationId: task._id.toString()
+        });
+        sendEmail({ email: donorUser.email, subject: tpl.subject, html: tpl.html, message: tpl.text }).catch(() => {});
+      }
+    } catch (emailErr) {
+      console.error('[EmailError] Error sending pickup email:', emailErr.message);
     }
 
     const updatedTask = await Donation.findById(task._id)
@@ -548,8 +716,20 @@ const verifyDeliveryOtp = async (req, res) => {
       return res.status(400).json({ message: 'Delivery OTP has already been verified' });
     }
 
+    // Case 21 & 22: Brute-force & Wrong OTP limit (max 5 attempts)
+    if ((task.deliveryOtpAttempts || 0) >= 5) {
+      return res.status(429).json({
+        message: 'Too many incorrect delivery OTP attempts (5/5). Delivery verification locked for security.'
+      });
+    }
+
     if (task.deliveryOtp !== otp.toString().trim()) {
-      return res.status(400).json({ message: 'Invalid delivery OTP. Please verify the code with the NGO / dropoff recipient.' });
+      task.deliveryOtpAttempts = (task.deliveryOtpAttempts || 0) + 1;
+      await task.save();
+      const remaining = 5 - task.deliveryOtpAttempts;
+      return res.status(400).json({
+        message: `Invalid delivery OTP. ${remaining} attempt(s) remaining before verification lock.`
+      });
     }
 
     task.deliveryOtpVerified = true;
@@ -588,8 +768,16 @@ const completeTask = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to complete this task' });
     }
 
+    // Case 9: Double-click idempotency
     if (task.status === 'delivered') {
-      return res.status(400).json({ message: 'Task has already been completed' });
+      const alreadyDelivered = await Donation.findById(task._id)
+        .select('-pickupOtp -deliveryOtp')
+        .populate('donor', 'name phone email address')
+        .populate('acceptedBy', 'name phone email');
+      return res.status(200).json({
+        message: 'Task has already been completed.',
+        task: alreadyDelivered
+      });
     }
 
     if (!task.pickupOtpVerified) {
@@ -629,22 +817,32 @@ const completeTask = async (req, res) => {
 
     await task.save();
 
-    await Notification.create({
-      user: task.donor,
-      message: 'Your donation has been delivered successfully!',
-      type: 'donation_status',
-      relatedDonation: task._id
-    });
+    // Case 8: Notification resilience
+    try {
+      await Notification.create({
+        user: task.donor,
+        message: 'Your donation has been delivered successfully!',
+        type: 'donation_status',
+        relatedDonation: task._id
+      });
+    } catch (notifErr) {
+      console.error('[NotificationError] Error creating delivery notification:', notifErr.message);
+    }
 
-    // Update volunteer profile statistics
-    let profile = await VolunteerProfile.findOne({ user: req.user._id });
-    if (profile) {
-      profile.completedDeliveries += 1;
-      profile.activeDeliveries = Math.max(0, profile.activeDeliveries - 1);
-      if (profile.activeDeliveries === 0) {
-        profile.availabilityStatus = 'available';
+    // Update volunteer profile statistics safely
+    let profile = null;
+    try {
+      profile = await VolunteerProfile.findOne({ user: req.user._id });
+      if (profile) {
+        profile.completedDeliveries = (profile.completedDeliveries || 0) + 1;
+        profile.activeDeliveries = Math.max(0, (profile.activeDeliveries || 1) - 1);
+        if (profile.activeDeliveries === 0) {
+          profile.availabilityStatus = 'available';
+        }
+        await profile.save();
       }
-      await profile.save();
+    } catch (profileErr) {
+      console.error('[VolunteerProfileError] Error updating delivery stats:', profileErr.message);
     }
 
     const updatedTask = await Donation.findById(task._id)
@@ -676,7 +874,7 @@ const getVolunteerStats = async (req, res) => {
   try {
     const profile = await VolunteerProfile.findOne({ user: req.user._id });
 
-    const availableCount = await Donation.countDocuments({
+    let availableFilter = {
       volunteerRequested: true,
       status: 'accepted',
       $or: [
@@ -684,7 +882,13 @@ const getVolunteerStats = async (req, res) => {
         { assignedVolunteer: { $exists: false } },
         { assignedVolunteer: req.user._id, volunteerStatus: 'assigned' }
       ]
-    });
+    };
+
+    if (profile && profile.associatedNgo) {
+      availableFilter.acceptedBy = profile.associatedNgo;
+    }
+
+    const availableCount = await Donation.countDocuments(availableFilter);
 
     const activeCount = await Donation.countDocuments({
       assignedVolunteer: req.user._id,
@@ -696,9 +900,15 @@ const getVolunteerStats = async (req, res) => {
       status: 'delivered'
     });
 
+    // Ensure profile counter is in sync with verified completed records
+    if (profile && profile.completedDeliveries !== completedCount) {
+      profile.completedDeliveries = completedCount;
+      await profile.save();
+    }
+
     res.json({
       stats: {
-        completedDeliveries: profile ? profile.completedDeliveries : completedCount,
+        completedDeliveries: completedCount,
         activeDeliveries: activeCount,
         availableTasks: availableCount,
         availabilityStatus: profile ? profile.availabilityStatus : 'available',
@@ -710,6 +920,43 @@ const getVolunteerStats = async (req, res) => {
   } catch (error) {
     console.error('Error in getVolunteerStats:', error);
     res.status(500).json({ message: 'Server error fetching stats' });
+  }
+};
+
+// @desc    Update volunteer live location for an active task
+// @route   PUT /api/volunteers/tasks/:id/location
+// @access  Private (Volunteer)
+const updateTaskLocation = async (req, res) => {
+  try {
+    const { lat, lng, heading, speed, address } = req.body;
+    const task = await Donation.findById(req.params.id);
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    if (!task.assignedVolunteer || task.assignedVolunteer.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized for this task' });
+    }
+
+    task.volunteerLocation = {
+      lat: Number(lat),
+      lng: Number(lng),
+      heading: Number(heading) || 0,
+      speed: Number(speed) || 0,
+      address: address || '',
+      updatedAt: new Date()
+    };
+
+    await task.save();
+
+    res.json({
+      message: 'Location updated successfully',
+      volunteerLocation: task.volunteerLocation
+    });
+  } catch (error) {
+    console.error('Error in updateTaskLocation:', error);
+    res.status(500).json({ message: 'Server error updating location' });
   }
 };
 
@@ -726,5 +973,6 @@ module.exports = {
   uploadDeliveryProof,
   verifyDeliveryOtp,
   completeTask,
-  getVolunteerStats
+  getVolunteerStats,
+  updateTaskLocation
 };

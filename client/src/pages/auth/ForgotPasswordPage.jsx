@@ -15,9 +15,9 @@ const ForgotPasswordPage = () => {
 
     try {
       const res = await forgotPassword(email);
-      setStatus({ 
-        type: 'success', 
-        message: res.message || 'If an account with that email exists, we have sent a password reset link.' 
+      setStatus({
+        type: 'success',
+        message: res.message || 'If an account with that email exists, we have sent a password reset link.',
       });
       setEmail('');
     } catch (err) {
@@ -28,28 +28,27 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f0e8] flex flex-col justify-center items-center p-4 sm:p-8 font-sans">
-      
+    <div className="min-h-screen bg-[#f8f6f0] flex flex-col justify-center items-center p-4 sm:p-8 font-body">
       {/* Brand / Logo */}
       <div className="mb-8 text-center animate-fade-in-up">
         <Link to="/" className="inline-flex items-center gap-2.5 no-underline group">
           <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-200">
             <span className="text-white text-base font-bold">🌱</span>
           </div>
-          <span className="text-2xl font-bold tracking-tight text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>
+          <span className="text-2xl font-bold tracking-tight text-[#172117]" style={{ fontFamily: 'var(--font-sans)' }}>
             Share<span className="text-primary-600 font-extrabold">Bite</span>
           </span>
         </Link>
       </div>
 
       {/* Forgot Password Card */}
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-primary-900/5 p-8 sm:p-10 border border-[#e6ded3] animate-scale-in">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 font-outfit">
+      <div className="w-full max-w-md surface-card p-8 sm:p-10 shadow-sm animate-scale-in">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-extrabold text-[#172117] mb-2" style={{ fontFamily: 'var(--font-sans)' }}>
             Reset Password
           </h1>
-          <p className="text-gray-500 text-sm">
-            Enter your email address and we'll send you a link to reset your password.
+          <p className="text-gray-500 text-xs sm:text-sm">
+            Enter your registered email address and we'll send you a secure link to reset your password.
           </p>
         </div>
 
@@ -59,10 +58,9 @@ const ForgotPasswordPage = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          {/* Email */}
-          <div className="mb-6 animate-fade-in-up animate-stagger-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">
               Email Address <span className="text-red-500">*</span>
             </label>
             <input
@@ -76,20 +74,19 @@ const ForgotPasswordPage = () => {
             />
           </div>
 
-          {/* Submit */}
-          <div className="animate-fade-in-up animate-stagger-2 mb-6">
+          <div className="pt-2">
             <button
               type="submit"
               disabled={loading || status.type === 'success'}
-              className="btn-primary w-full py-2.5 cursor-pointer"
+              className="btn-primary w-full py-3 text-sm font-bold shadow-sm"
             >
-              {loading ? 'Sending...' : 'Send Reset Link'}
+              {loading ? 'Sending Instructions...' : 'Send Reset Link'}
             </button>
           </div>
-          
-          <div className="text-center text-sm text-gray-500 mt-6 animate-fade-in-up animate-stagger-3">
-            Remember your password?{' '}
-            <Link to="/login" className="text-primary-600 font-semibold hover:text-primary-700 transition-colors">
+
+          <div className="text-center text-xs text-gray-500 mt-6 pt-4 border-t border-[#e8e2d5]">
+            Remember your credentials?{' '}
+            <Link to="/login" className="text-primary-700 font-bold hover:text-primary-800 transition-colors">
               Back to Sign In
             </Link>
           </div>

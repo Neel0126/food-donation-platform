@@ -12,8 +12,15 @@ import {
   HiExclamationCircle,
   HiUser,
   HiSearch,
-  HiFilter
+  HiFilter,
+  HiPhone,
+  HiPencil,
+  HiExternalLink,
 } from 'react-icons/hi';
+import StatCounter from '../../components/ui/StatCounter';
+import StatusBadge from '../../components/ui/StatusBadge';
+import EmptyState from '../../components/ui/EmptyState';
+import { StatSkeleton } from '../../components/ui/Skeleton';
 import {
   getVolunteerProfile,
   updateAvailabilityStatus,
@@ -26,20 +33,42 @@ import {
   verifyDeliveryOtp,
   completeTask,
   getVolunteerStats,
-  updateVolunteerProfile
+  updateVolunteerProfile,
+  updateTaskLocation,
 } from '../../services/volunteerService';
+
+const VEHICLE_CONFIG = {
+  car: { icon: '🚗', label: 'Car', capacity: '50–100 meals' },
+  bike: { icon: '🏍️', label: 'Motorcycle', capacity: '10–25 meals' },
+  scooter: { icon: '🛵', label: 'Scooter', capacity: '10–25 meals' },
+  van: { icon: '🚐', label: 'Van / Mini-Truck', capacity: '150–300+ meals' },
+  bicycle: { icon: '🚲', label: 'Bicycle', capacity: '5–10 meals' },
+  other: { icon: '🚶', label: 'On Foot / Transit', capacity: 'Small parcels' },
+};
+
+const formatDeliveredDate = (dateStr) => {
+  if (!dateStr) return 'Recently';
+  try {
+    const d = new Date(dateStr);
+    const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return `${datePart} · ${timePart}`;
+  } catch (e) {
+    return String(dateStr);
+  }
+};
 
 const VolunteerDashboard = () => {
   const { user } = useAuth();
 
-  const [activeTab, setActiveTab] = useState('available'); // 'available', 'active', 'history'
+  const [activeTab, setActiveTab] = useState('available'); // 'available' | 'active' | 'history'
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState({
     completedDeliveries: 0,
     activeDeliveries: 0,
     availableTasks: 0,
     availabilityStatus: 'available',
-    rating: 5.0
+    rating: 5.0,
   });
   const [availableTasks, setAvailableTasks] = useState([]);
   const [myTasks, setMyTasks] = useState([]);
@@ -47,11 +76,11 @@ const VolunteerDashboard = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
 
-  // Search & Filter State
+  // Search State
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modal states
-  const [activeModal, setActiveModal] = useState(null); // 'pickupOtp', 'deliveryOtp', 'proof', 'profile'
+  const [activeModal, setActiveModal] = useState(null); // 'pickupOtp' | 'deliveryOtp' | 'proof' | 'profile' | 'ratingsBreakdown'
   const [selectedTask, setSelectedTask] = useState(null);
   const [otpInput, setOtpInput] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
@@ -66,6 +95,47 @@ const VolunteerDashboard = () => {
     fetchData();
   }, []);
 
+  // Broadcast real-time volunteer GPS coordinates for active delivery tasks
+  useEffect(() => {
+    const activeTask = myTasks.find((t) => ['assigned', 'picked_up'].includes(t.status));
+    if (!activeTask) return;
+
+    let watchId;
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          updateTaskLocation(activeTask._id, {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            speed: pos.coords.speed || 0,
+            heading: pos.coords.heading || 0,
+          }).catch(() => {});
+        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          updateTaskLocation(activeTask._id, {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            speed: pos.coords.speed || 0,
+            heading: pos.coords.heading || 0,
+          }).catch(() => {});
+        },
+        (err) => console.log('Geolocation watch notice:', err?.message),
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+      );
+    }
+
+    return () => {
+      if (watchId && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, [myTasks]);
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
@@ -78,7 +148,7 @@ const VolunteerDashboard = () => {
         getVolunteerProfile().catch(() => null),
         getVolunteerStats().catch(() => null),
         getAvailableTasks(params).catch(() => []),
-        getMyTasks('all').catch(() => [])
+        getMyTasks('all').catch(() => []),
       ]);
 
       if (profRes) {
@@ -109,7 +179,7 @@ const VolunteerDashboard = () => {
   const handleStatusChange = async (newStatus) => {
     try {
       await updateAvailabilityStatus(newStatus);
-      setStats(prev => ({ ...prev, availabilityStatus: newStatus }));
+      setStats((prev) => ({ ...prev, availabilityStatus: newStatus }));
       showFeedback(`Availability status set to ${newStatus}`);
     } catch (err) {
       showFeedback('Failed to update status', 'error');
@@ -192,7 +262,6 @@ const VolunteerDashboard = () => {
       setActionLoading(true);
       setModalError('');
 
-      // If proof file attached, upload proof first
       if (proofFile) {
         const formData = new FormData();
         formData.append('proof', proofFile);
@@ -228,163 +297,187 @@ const VolunteerDashboard = () => {
     }
   };
 
-  const activeDeliveriesList = myTasks.filter(t => ['assigned', 'picked_up'].includes(t.status));
-  const completedDeliveriesList = myTasks.filter(t => t.status === 'delivered');
-
-  const ratingDisplay = stats.ratingCount > 0
-    ? `${Number(stats.rating).toFixed(1)} ★`
-    : '5.0 ★';
-
-  const ratingLabel = stats.ratingCount > 0
-    ? `Rating (${stats.ratingCount} review${stats.ratingCount > 1 ? 's' : ''})`
-    : 'Rating (New Volunteer)';
-
-  const statsCards = [
-    { label: 'Deliveries Completed', value: stats.completedDeliveries?.toString() || '0', icon: HiTruck, color: 'bg-green-50 text-green-600' },
-    { label: 'Active Deliveries', value: activeDeliveriesList.length.toString(), icon: HiClock, color: 'bg-primary-50 text-primary-600' },
-    { label: 'Available in Pool', value: availableTasks.length.toString(), icon: HiLocationMarker, color: 'bg-amber-50 text-amber-600' },
-    {
-      label: ratingLabel,
-      value: ratingDisplay,
-      icon: HiThumbUp,
-      color: 'bg-indigo-50 text-indigo-600',
-      isClickable: true,
-      onClick: () => setActiveModal('ratingsBreakdown')
-    },
-  ];
+  const activeDeliveriesList = myTasks.filter((t) => ['assigned', 'scheduled', 'picked_up'].includes(t.status));
+  const completedDeliveriesList = myTasks.filter((t) => t.status === 'delivered');
+  const currentVehicle = VEHICLE_CONFIG[profile?.vehicleType || 'bike'] || VEHICLE_CONFIG.bike;
 
   return (
-    <DashboardLayout>
+    <DashboardLayout activeTab={activeTab} onTabChange={(tab) => setActiveTab(tab)}>
       {/* Toast Feedback */}
       {feedback && (
         <div
-          className={`mb-6 p-4 rounded-2xl border text-sm font-medium flex items-center gap-2 animate-fade-in-up ${
+          className={`mb-6 p-4 rounded-2xl border text-sm font-semibold flex items-center gap-2.5 animate-fade-in-up ${
             feedback.type === 'error'
-              ? 'bg-red-50 text-red-700 border-red-200'
-              : 'bg-green-50 text-green-700 border-green-200'
+              ? 'bg-red-50 text-red-800 border-red-200'
+              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
           }`}
         >
-          <HiCheckCircle size={18} />
-          {feedback.text}
+          <HiCheckCircle size={20} className="shrink-0" />
+          <span>{feedback.text}</span>
         </div>
       )}
 
-      {/* Header & Live Status */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 animate-fade-in-up">
+      {/* Header & Status Switcher */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 animate-fade-in-up">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#172117] tracking-tight" style={{ fontFamily: 'var(--font-sans)' }}>
             Welcome, {user?.name || 'Volunteer'}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Vehicle: <strong className="capitalize text-gray-700">{profile?.vehicleType || 'Bike'}</strong> ({profile?.vehicleNumber || 'No plate added'}) •{' '}
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/95 border border-[#e8e2d5] rounded-full text-xs font-medium text-gray-700 shadow-2xs">
+              <span className="text-sm">{currentVehicle.icon}</span>
+              <strong className="text-gray-900">{currentVehicle.label}</strong>
+              <span className="text-gray-300">·</span>
+              <span className="font-mono text-gray-800 font-semibold">{profile?.vehicleNumber || 'No plate registered'}</span>
+              <span className="text-gray-300">·</span>
+              <span className="text-[11px] text-gray-500 font-normal">Cap: {currentVehicle.capacity}</span>
+            </span>
             <button
               onClick={() => {
                 setModalError('');
                 setActiveModal('profile');
               }}
-              className="text-primary-600 font-semibold underline cursor-pointer hover:text-primary-700"
+              className="text-primary-700 hover:text-primary-850 font-bold text-xs underline cursor-pointer inline-flex items-center gap-1"
             >
-              Edit Vehicle
+              <HiPencil size={12} /> Edit
             </button>
-          </p>
+          </div>
         </div>
 
-        {/* Status Selector & Refresh */}
+        {/* Work Status Switcher */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center bg-white border border-gray-200 p-1 rounded-2xl shadow-xs">
-            <span className="text-xs font-semibold px-2 text-gray-500">Status:</span>
-            {['available', 'busy', 'offline'].map((st) => (
-              <button
-                key={st}
-                onClick={() => handleStatusChange(st)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer ${
-                  stats.availabilityStatus === st
-                    ? st === 'available'
-                      ? 'bg-emerald-500 text-white shadow-xs'
-                      : st === 'busy'
-                      ? 'bg-amber-500 text-white shadow-xs'
-                      : 'bg-gray-600 text-white shadow-xs'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                {st}
-              </button>
-            ))}
+          <div className="surface-card p-1.5 px-3 flex items-center gap-2.5 border border-[#e8e2d5] rounded-2xl shadow-2xs">
+            <div className="flex flex-col pr-2.5 border-r border-[#e8e2d5]">
+              <span className="text-[9px] font-black uppercase tracking-wider text-gray-400 leading-tight">
+                Work Status
+              </span>
+              <span className="text-xs font-extrabold flex items-center gap-1.5 mt-0.5">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    stats.availabilityStatus === 'available'
+                      ? 'bg-emerald-500 shadow-xs'
+                      : stats.availabilityStatus === 'busy'
+                      ? 'bg-amber-500'
+                      : 'bg-gray-400'
+                  }`}
+                />
+                <span className="capitalize text-gray-900">
+                  {stats.availabilityStatus}
+                </span>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1">
+              {['available', 'busy', 'offline'].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => handleStatusChange(st)}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
+                    stats.availabilityStatus === st
+                      ? st === 'available'
+                        ? 'bg-emerald-600 text-white shadow-2xs'
+                        : st === 'busy'
+                        ? 'bg-amber-500 text-white shadow-2xs'
+                        : 'bg-gray-600 text-white shadow-2xs'
+                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
           </div>
 
           <button
             onClick={fetchData}
             disabled={isLoading}
-            className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 px-3.5 py-2 rounded-2xl hover:bg-gray-50 transition-all text-sm font-medium cursor-pointer"
+            className="btn-secondary text-xs sm:text-sm px-3.5 py-2 cursor-pointer shadow-2xs"
+            aria-label="Refresh tasks"
           >
             <HiRefresh className={`${isLoading ? 'animate-spin' : ''}`} size={16} />
           </button>
         </div>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {statsCards.map((stat, i) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.label}
-              onClick={stat.onClick}
-              className={`bg-white rounded-3xl border border-[#e6ded3] p-5 flex items-center gap-4 transition-all hover:border-primary-300 hover:shadow-lg hover:shadow-primary-900/5 animate-fade-in-up animate-stagger-${i + 1} ${
-                stat.isClickable ? 'cursor-pointer hover:border-indigo-300' : ''
-              }`}
-            >
-              <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 ${stat.color}`}>
-                <Icon size={22} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>{stat.value}</p>
-                <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
-              </div>
-            </div>
-          );
-        })}
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-8">
+        {isLoading ? (
+          <>
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+          </>
+        ) : (
+          <>
+            <StatCounter
+              value={completedDeliveriesList.length}
+              label="Deliveries Completed"
+              icon={HiTruck}
+              subtext="Nourished households"
+            />
+            <StatCounter
+              value={activeDeliveriesList.length}
+              label="Active Deliveries"
+              icon={HiClock}
+              subtext="Currently assigned"
+            />
+            <StatCounter
+              value={availableTasks.length}
+              label="Available Pool"
+              icon={HiLocationMarker}
+              subtext="Nearby pickups"
+            />
+            <StatCounter
+              value={Number(stats.rating || 5.0).toFixed(1)}
+              label="Volunteer Rating"
+              icon={HiThumbUp}
+              subtext={`${stats.ratingCount || 0} ${stats.ratingCount === 1 ? 'review' : 'reviews'}`}
+              tooltip="Average rating from partner NGOs and donors based on completed deliveries"
+            />
+          </>
+        )}
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 mb-6 gap-2">
+      <div className="flex border-b border-[#e8e2d5] mb-6 gap-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab('available')}
-          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer shrink-0 ${
             activeTab === 'available'
-              ? 'border-primary-600 text-primary-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
+              ? 'border-primary-600 text-primary-800'
+              : 'border-transparent text-gray-500 hover:text-gray-800'
           }`}
         >
           Available Task Pool ({availableTasks.length})
         </button>
         <button
           onClick={() => setActiveTab('active')}
-          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer shrink-0 ${
             activeTab === 'active'
-              ? 'border-primary-600 text-primary-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
+              ? 'border-primary-600 text-primary-800'
+              : 'border-transparent text-gray-500 hover:text-gray-800'
           }`}
         >
           Active Deliveries ({activeDeliveriesList.length})
         </button>
         <button
           onClick={() => setActiveTab('history')}
-          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer shrink-0 ${
             activeTab === 'history'
-              ? 'border-primary-600 text-primary-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
+              ? 'border-primary-600 text-primary-800'
+              : 'border-transparent text-gray-500 hover:text-gray-800'
           }`}
         >
           Completed Deliveries ({completedDeliveriesList.length})
         </button>
       </div>
 
-      {/* Tab 1: Available Tasks */}
+      {/* ================= TAB 1: Available Pool ================= */}
       {activeTab === 'available' && (
-        <div>
-          {/* Location Search Bar for Volunteers */}
-          <div className="bg-white border border-primary-100 rounded-2xl p-4 mb-6 shadow-xs">
+        <div className="space-y-4 animate-fade-in">
+          {/* Location search filter */}
+          <div className="surface-card p-4">
             <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
               <div className="relative flex-1">
                 <HiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -392,13 +485,13 @@ const VolunteerDashboard = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Filter tasks by city, area, street, or food type..."
-                  className="w-full pl-10 pr-4 py-2 text-xs md:text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:outline-none bg-gray-50/50"
+                  placeholder="Filter tasks by city, neighborhood, food type..."
+                  className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm border border-[#e8e2d5] rounded-xl focus:ring-2 focus:ring-primary-500 focus:outline-none bg-[#faf8f4]"
                 />
               </div>
               <button
                 type="submit"
-                className="bg-primary-600 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-primary-700 transition-all cursor-pointer shrink-0"
+                className="btn-primary text-xs sm:text-sm px-4 py-2 shrink-0"
               >
                 Search
               </button>
@@ -406,39 +499,61 @@ const VolunteerDashboard = () => {
           </div>
 
           {isLoading ? (
-            <div className="p-12 text-center text-gray-400">Searching for available tasks...</div>
+            <div className="surface-card p-12 text-center text-gray-400">Searching available tasks...</div>
           ) : availableTasks.length === 0 ? (
-            <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center text-gray-500">
-              <p className="font-semibold text-gray-700 mb-1">No delivery tasks match your search right now.</p>
-              <p className="text-xs text-gray-400">When NGOs request pickups in your area, they will appear here!</p>
+            <div className="surface-card p-12 sm:p-16 text-center border-dashed border-primary-200/80 bg-white/70 rounded-3xl my-2">
+              <div className="h-14 w-14 mx-auto rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3.5 border border-emerald-100 shadow-2xs">
+                <HiCheckCircle size={30} />
+              </div>
+              <h3 className="text-lg font-bold text-[#172117] mb-1.5" style={{ fontFamily: 'var(--font-sans)' }}>
+                No available tasks
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
+                New nearby pickup requests will appear here when available.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {availableTasks.map((task) => (
-                <div key={task._id} className="bg-white border border-primary-100 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-all">
+                <div
+                  key={task._id}
+                  className="surface-card p-5 flex flex-col justify-between hover:border-primary-300 transition-all"
+                >
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-gray-800 text-lg">{task.foodType}</h3>
-                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                        Ready for Pickup
-                      </span>
+                      <h3 className="font-extrabold text-[#172117] text-lg leading-tight">{task.foodType}</h3>
+                      <StatusBadge status="accepted" />
                     </div>
 
-                    <p className="text-xs text-gray-600 mb-3 line-clamp-2">{task.description || 'No special notes.'}</p>
+                    <p className="text-xs text-gray-600 mb-3 line-clamp-2">
+                      {task.description || 'No special dietary instructions.'}
+                    </p>
 
-                    <div className="space-y-2 text-xs text-gray-600 bg-gray-50 p-3 rounded-xl mb-4 border border-gray-100">
-                      <div><strong className="text-gray-800">Quantity:</strong> {task.quantity}</div>
+                    <div className="space-y-2 text-xs text-gray-600 bg-[#faf8f4] p-3.5 rounded-2xl mb-4 border border-[#e8e2d5]">
+                      <div>
+                        <strong className="text-gray-800">Quantity:</strong> {task.quantity}
+                      </div>
                       <div className="flex items-start gap-1">
                         <HiLocationMarker className="text-emerald-600 shrink-0 mt-0.5" />
-                        <span><strong>Pickup:</strong> {task.pickupLocation?.street || ''}, <strong className="text-gray-900">{task.pickupLocation?.city || 'Local Area'}</strong></span>
+                        <span>
+                          <strong>1. Pickup (Donor):</strong> {task.pickupLocation?.street ? `${task.pickupLocation.street}, ` : ''}
+                          <strong className="text-gray-900">{task.pickupLocation?.city || 'Local Area'}</strong>
+                        </span>
                       </div>
                       <div className="flex items-start gap-1">
                         <HiLocationMarker className="text-indigo-600 shrink-0 mt-0.5" />
-                        <span><strong>Dropoff:</strong> {task.dropoffLocation?.street || 'NGO Partner Dropoff Point'}, <strong className="text-gray-900">{task.dropoffLocation?.city || ''}</strong></span>
+                        <span>
+                          <strong>2. Dropoff (NGO):</strong>{' '}
+                          <strong className="text-primary-800">{task.ngoOrganization?.organizationName || task.acceptedBy?.name || 'Partner NGO'}</strong>
+                          {task.dropoffLocation?.street ? ` — ${task.dropoffLocation.street}` : ''}
+                          {task.dropoffLocation?.city ? `, ${task.dropoffLocation.city}` : ''}
+                        </span>
                       </div>
                       <div className="flex items-center gap-1 text-gray-500">
                         <HiUser className="shrink-0" />
-                        <span>Donor: {task.donor?.name || 'Donor'} ({task.donor?.phone || 'No phone'})</span>
+                        <span>
+                          Donor: {task.donor?.name || 'Donor'} ({task.donor?.phone || 'No phone'})
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -446,7 +561,7 @@ const VolunteerDashboard = () => {
                   <button
                     onClick={() => handleAcceptTask(task._id)}
                     disabled={actionLoading}
-                    className="w-full bg-primary-600 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-primary-700 transition-all cursor-pointer shadow-xs"
+                    className="w-full btn-primary text-xs sm:text-sm py-2.5 justify-center shadow-xs"
                   >
                     Accept Delivery Task
                   </button>
@@ -457,14 +572,28 @@ const VolunteerDashboard = () => {
         </div>
       )}
 
-      {/* Tab 2: Active Deliveries */}
+      {/* ================= TAB 2: Active Deliveries ================= */}
       {activeTab === 'active' && (
-        <div>
+        <div className="space-y-4 animate-fade-in">
           {isLoading ? (
-            <div className="p-12 text-center text-gray-400">Loading active tasks...</div>
+            <div className="surface-card p-12 text-center text-gray-400">Loading active tasks...</div>
           ) : activeDeliveriesList.length === 0 ? (
-            <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center text-gray-500">
-              No active tasks right now. Accept a task from the Available Pool!
+            <div className="surface-card p-12 sm:p-16 text-center border-dashed border-primary-200/80 bg-white/70 rounded-3xl my-2">
+              <div className="h-14 w-14 mx-auto rounded-2xl bg-gray-50 text-gray-400 flex items-center justify-center mb-3.5 border border-gray-100 shadow-2xs">
+                <HiClock size={30} />
+              </div>
+              <h3 className="text-lg font-bold text-[#172117] mb-1.5" style={{ fontFamily: 'var(--font-sans)' }}>
+                No active deliveries
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto mb-5 leading-relaxed">
+                Accept a delivery from the available pool to get started.
+              </p>
+              <button
+                onClick={() => setActiveTab('available')}
+                className="btn-primary inline-flex text-xs sm:text-sm px-5 py-2.5 shadow-xs cursor-pointer"
+              >
+                Explore Available Pool ({availableTasks.length})
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -473,62 +602,182 @@ const VolunteerDashboard = () => {
                 const isDeliveredOtpVerified = task.deliveryOtpVerified;
 
                 return (
-                  <div key={task._id} className="bg-white border border-primary-100 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+                  <div
+                    key={task._id}
+                    className="surface-card p-6 flex flex-col justify-between hover:border-primary-300 transition-all"
+                  >
                     <div>
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h3 className="font-bold text-gray-800 text-lg">{task.foodType}</h3>
-                          <p className="text-xs text-gray-500 font-medium">Quantity: {task.quantity}</p>
+                          <h3 className="font-extrabold text-[#172117] text-lg">{task.foodType}</h3>
+                          <p className="text-xs font-semibold text-primary-700">Quantity: {task.quantity}</p>
                         </div>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                            isPickedUp
-                              ? 'bg-purple-100 text-purple-800 border border-purple-200'
-                              : 'bg-blue-100 text-blue-800 border border-blue-200'
-                          }`}
-                        >
-                          {isPickedUp ? 'In Transit 🚚' : 'Assigned (Pickup Pending)'}
-                        </span>
+                        <StatusBadge status={isPickedUp ? 'picked_up' : 'assigned'} />
                       </div>
 
-                      {/* Timeline / Progress Indicator */}
-                      <div className="my-4 p-3 bg-gray-50 rounded-2xl border border-gray-100 text-xs">
+                      {/* 3-Step Progress Bar */}
+                      <div className="my-4 p-3.5 bg-[#faf8f4] rounded-2xl border border-[#e8e2d5] text-xs">
                         <div className="flex items-center justify-between text-gray-600 mb-2">
-                          <span className="font-semibold">Workflow Progress:</span>
-                          <span className="font-bold text-primary-600">{isPickedUp ? (isDeliveredOtpVerified ? 'Step 3 of 3 (Complete)' : 'Step 2 of 3 (Delivery)') : 'Step 1 of 3 (Pickup)'}</span>
+                          <span className="font-bold">Workflow Progress:</span>
+                          <span className="font-extrabold text-primary-700">
+                            {isPickedUp
+                              ? isDeliveredOtpVerified
+                                ? 'Step 3 of 3 (Final Handover)'
+                                : 'Step 2 of 3 (In Transit to NGO)'
+                              : 'Step 1 of 3 (Pickup at Donor)'}
+                          </span>
                         </div>
-                        <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                        <div className="w-full bg-[#e8e2d5] h-2 rounded-full overflow-hidden">
                           <div
                             className="bg-primary-600 h-full transition-all duration-500"
-                            style={{ width: isPickedUp ? (isDeliveredOtpVerified ? '90%' : '55%') : '25%' }}
+                            style={{
+                              width: isPickedUp ? (isDeliveredOtpVerified ? '90%' : '55%') : '25%',
+                            }}
                           />
                         </div>
                       </div>
 
+                      {/* Active Mission Live Guidance Banner */}
+                      <div className={`p-3.5 rounded-2xl border mb-4 flex items-center justify-between gap-3 ${
+                        isPickedUp 
+                          ? 'bg-gradient-to-r from-indigo-50/90 to-primary-50/80 border-indigo-200' 
+                          : 'bg-gradient-to-r from-emerald-50/90 to-amber-50/60 border-emerald-200'
+                      }`}>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wide">
+                            <span className={`w-2 h-2 rounded-full animate-ping ${isPickedUp ? 'bg-indigo-600' : 'bg-emerald-600'}`} />
+                            <span className={isPickedUp ? 'text-indigo-900' : 'text-emerald-900'}>
+                              {isPickedUp ? 'Destination: NGO Dropoff' : 'Next Stop: Donor Pickup'}
+                            </span>
+                          </div>
+                          <p className="text-sm font-extrabold text-gray-900 truncate mt-0.5">
+                            {isPickedUp
+                              ? (task.ngoOrganization?.organizationName || task.acceptedBy?.name || 'NGO Dropoff Center')
+                              : (task.donor?.name || 'Donor Pickup')}
+                          </p>
+                          <p className="text-xs text-gray-600 truncate">
+                            {isPickedUp
+                              ? [task.dropoffLocation?.street, task.dropoffLocation?.city].filter(Boolean).join(', ') || 'Facility Address'
+                              : [task.pickupLocation?.street, task.pickupLocation?.city].filter(Boolean).join(', ') || 'Pickup Address'}
+                          </p>
+                        </div>
+                        <a
+                          href={(() => {
+                            const dest = isPickedUp
+                              ? [task.ngoOrganization?.organizationName, task.dropoffLocation?.street, task.dropoffLocation?.city, task.dropoffLocation?.state || 'Gujarat'].filter(Boolean).join(', ')
+                              : [task.pickupLocation?.street, task.pickupLocation?.city, task.pickupLocation?.state || 'Gujarat'].filter(Boolean).join(', ');
+                            return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}`;
+                          })()}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`shrink-0 flex items-center gap-1 px-3 py-2 text-white rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer ${
+                            isPickedUp
+                              ? 'bg-indigo-600 hover:bg-indigo-700 active:scale-95'
+                              : 'bg-emerald-700 hover:bg-emerald-800 active:scale-95'
+                          }`}
+                          title="Open turn-by-turn navigation in Google Maps"
+                        >
+                          <HiLocationMarker size={15} />
+                          <span>GPS Map</span>
+                          <HiExternalLink size={13} />
+                        </a>
+                      </div>
+
                       {/* Locations & Contacts */}
                       <div className="space-y-3 text-xs text-gray-600 mb-5">
-                        <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-100">
-                          <p className="font-bold text-emerald-800 mb-1 flex items-center gap-1">
-                            <HiLocationMarker className="text-emerald-600" />
-                            1. Pickup Location (Donor)
+                        {/* Point 1: Donor Pickup */}
+                        <div className={`p-3.5 rounded-xl border transition-all ${
+                          !isPickedUp 
+                            ? 'bg-emerald-50/80 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs' 
+                            : 'bg-gray-50/80 border-gray-200 opacity-80'
+                        }`}>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <p className="font-bold text-emerald-950 flex items-center gap-1.5 text-xs">
+                              <HiLocationMarker className="text-emerald-700 text-sm" />
+                              1. Pickup Location (Donor)
+                            </p>
+                            <a
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent([task.pickupLocation?.street, task.pickupLocation?.city, 'Gujarat'].filter(Boolean).join(', '))}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-0.5 hover:underline"
+                            >
+                              Directions <HiExternalLink size={12} />
+                            </a>
+                          </div>
+                          <p className="text-gray-900 font-semibold">
+                            {task.pickupLocation?.street ? `${task.pickupLocation.street}, ` : ''}{task.pickupLocation?.city || 'Local Area'}
                           </p>
-                          <p className="text-gray-700">{task.pickupLocation?.street}, {task.pickupLocation?.city}</p>
-                          <p className="text-gray-500 mt-1">Donor Contact: <strong>{task.donor?.name}</strong> ({task.donor?.phone || 'No phone'})</p>
+                          <div className="flex items-center justify-between mt-2 pt-2 border-t border-emerald-200/50 text-[11px]">
+                            <span className="text-gray-600">
+                              Donor: <strong className="text-gray-900">{task.donor?.name || 'Donor'}</strong>
+                            </span>
+                            {task.donor?.phone ? (
+                              <a
+                                href={`tel:${task.donor.phone}`}
+                                className="flex items-center gap-1 font-bold text-emerald-800 hover:text-emerald-900 bg-emerald-100/70 px-2 py-0.5 rounded-md transition-colors"
+                              >
+                                <HiPhone size={12} />
+                                {task.donor.phone}
+                              </a>
+                            ) : (
+                              <span className="text-gray-400">No phone</span>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100">
-                          <p className="font-bold text-indigo-800 mb-1 flex items-center gap-1">
-                            <HiLocationMarker className="text-indigo-600" />
-                            2. Delivery Dropoff (NGO)
+                        {/* Point 2: Delivery Dropoff (NGO) */}
+                        <div className={`p-3.5 rounded-xl border transition-all ${
+                          isPickedUp 
+                            ? 'bg-indigo-50/90 border-indigo-300 ring-2 ring-indigo-500/20 shadow-xs' 
+                            : 'bg-gray-50/80 border-gray-200'
+                        }`}>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <p className="font-bold text-indigo-950 flex items-center gap-1.5 text-xs">
+                              <HiLocationMarker className="text-indigo-700 text-sm" />
+                              2. Delivery Dropoff (NGO Facility)
+                            </p>
+                            <a
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent([task.ngoOrganization?.organizationName, task.dropoffLocation?.street, task.dropoffLocation?.city, 'Gujarat'].filter(Boolean).join(', '))}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[11px] font-bold text-indigo-700 hover:text-indigo-800 flex items-center gap-0.5 hover:underline"
+                            >
+                              Directions <HiExternalLink size={12} />
+                            </a>
+                          </div>
+                          
+                          {/* NGO Organization Name Badge */}
+                          <div className="mb-1">
+                            <span className="inline-block text-xs font-black text-indigo-950 bg-indigo-100/80 px-2 py-0.5 rounded-md">
+                              {task.ngoOrganization?.organizationName || 'NGO Community Partner'}
+                            </span>
+                          </div>
+                          <p className="text-gray-900 font-semibold">
+                            {[task.dropoffLocation?.street, task.dropoffLocation?.city, task.dropoffLocation?.zipCode].filter(Boolean).join(', ') || 'Facility Address on File'}
                           </p>
-                          <p className="text-gray-700">{task.dropoffLocation?.street || 'NGO Dropoff Point'}, {task.dropoffLocation?.city || ''}</p>
-                          <p className="text-gray-500 mt-1">NGO Contact: <strong>{task.acceptedBy?.name}</strong> ({task.acceptedBy?.phone || 'No phone'})</p>
+                          <div className="flex items-center justify-between mt-2 pt-2 border-t border-indigo-200/50 text-[11px]">
+                            <span className="text-gray-600">
+                              Coordinator: <strong className="text-gray-900">{task.acceptedBy?.name || 'NGO Coordinator'}</strong>
+                            </span>
+                            {task.acceptedBy?.phone ? (
+                              <a
+                                href={`tel:${task.acceptedBy.phone}`}
+                                className="flex items-center gap-1 font-bold text-indigo-800 hover:text-indigo-900 bg-indigo-100/70 px-2 py-0.5 rounded-md transition-colors"
+                              >
+                                <HiPhone size={12} />
+                                {task.acceptedBy.phone}
+                              </a>
+                            ) : (
+                              <span className="text-gray-400">No phone</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     {/* Step-by-Step Actions */}
-                    <div className="pt-4 border-t border-gray-100 space-y-2">
+                    <div className="pt-4 border-t border-[#e8e2d5] space-y-2">
                       {!isPickedUp ? (
                         <>
                           <button
@@ -538,7 +787,7 @@ const VolunteerDashboard = () => {
                               setModalError('');
                               setActiveModal('pickupOtp');
                             }}
-                            className="w-full bg-emerald-600 text-white py-3 rounded-2xl text-sm font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-emerald-600/15"
+                            className="w-full btn-primary text-xs sm:text-sm py-3 justify-center shadow-md shadow-emerald-700/15"
                           >
                             <HiKey size={18} />
                             Arrived at Donor: Enter Pickup OTP
@@ -547,7 +796,7 @@ const VolunteerDashboard = () => {
                           <button
                             onClick={() => handleRejectTask(task._id)}
                             disabled={actionLoading}
-                            className="w-full bg-gray-100 text-gray-600 py-2 rounded-xl text-xs font-semibold hover:bg-red-50 hover:text-red-600 transition-all cursor-pointer"
+                            className="w-full py-2 text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors cursor-pointer text-center"
                           >
                             Decline & Return Task to Pool
                           </button>
@@ -562,7 +811,7 @@ const VolunteerDashboard = () => {
                                 setModalError('');
                                 setActiveModal('deliveryOtp');
                               }}
-                              className="w-full bg-indigo-600 text-white py-3 rounded-2xl text-sm font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-indigo-600/15"
+                              className="w-full btn-primary text-xs sm:text-sm py-3 justify-center bg-indigo-700 hover:bg-indigo-800 border-indigo-900 shadow-md shadow-indigo-700/15"
                             >
                               <HiKey size={18} />
                               Arrived at NGO: Enter Delivery OTP
@@ -576,10 +825,10 @@ const VolunteerDashboard = () => {
                                 setModalError('');
                                 setActiveModal('proof');
                               }}
-                              className="w-full bg-emerald-600 text-white py-3 rounded-2xl text-sm font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-emerald-600/15 animate-bounce-short"
+                              className="w-full btn-primary text-xs sm:text-sm py-3 justify-center shadow-md animate-bounce-short"
                             >
                               <HiCheckCircle size={18} />
-                              Finalize & Complete Delivery
+                              Finalize & Mark Task Delivered
                             </button>
                           )}
                         </>
@@ -593,38 +842,127 @@ const VolunteerDashboard = () => {
         </div>
       )}
 
-      {/* Tab 3: Completed Deliveries */}
+      {/* ================= TAB 3: Completed History ================= */}
       {activeTab === 'history' && (
-        <div>
+        <div className="space-y-4 animate-fade-in">
           {isLoading ? (
-            <div className="p-12 text-center text-gray-400">Loading delivery history...</div>
+            <div className="surface-card p-12 text-center text-gray-400">Loading delivery history...</div>
           ) : completedDeliveriesList.length === 0 ? (
-            <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center text-gray-500">
-              No completed deliveries yet. Complete your first delivery to earn badges and rating!
+            <div className="surface-card p-12 sm:p-16 text-center border-dashed border-primary-200/80 bg-white/70 rounded-3xl my-2">
+              <div className="h-14 w-14 mx-auto rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3.5 border border-emerald-100 shadow-2xs">
+                <HiTruck size={30} />
+              </div>
+              <h3 className="text-lg font-bold text-[#172117] mb-1.5" style={{ fontFamily: 'var(--font-sans)' }}>
+                No completed deliveries yet
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
+                Deliveries you complete will appear here with pickup and dropoff records, verified timings, and feedback.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {completedDeliveriesList.map((task) => (
-                <div key={task._id} className="bg-white border border-green-100 rounded-2xl p-5 shadow-xs">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-gray-800">{task.foodType}</h3>
-                    <span className="bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full text-xs font-bold">
-                      Delivered ✓
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500 mb-2">Quantity: {task.quantity}</p>
-                  <p className="text-xs text-gray-600">Donor: {task.donor?.name}</p>
-                  <p className="text-xs text-gray-600">NGO: {task.acceptedBy?.name}</p>
-                  {task.deliveryNotes && (
-                    <div className="text-xs italic bg-gray-50 p-2.5 rounded-xl text-gray-600 mt-3 border border-gray-100">
-                      "{task.deliveryNotes}"
+              {completedDeliveriesList.map((task) => {
+                const donorName = task.donor?.name || 'Neel Panchal';
+                const ngoName = task.ngoOrganization?.organizationName || task.acceptedBy?.name || 'Dhruv Patel';
+                const pickupAddress = [task.pickupLocation?.street, task.pickupLocation?.city].filter(Boolean).join(', ') || 'Donor Location';
+                const dropoffAddress = [task.dropoffLocation?.street, task.dropoffLocation?.city].filter(Boolean).join(', ') || 'NGO Relief Center';
+                const ratingScore = task.volunteerRating?.score || 5;
+                const feedbackText = task.volunteerRating?.feedback || (task.deliveryNotes && task.deliveryNotes.trim() !== '' ? task.deliveryNotes : null);
+
+                return (
+                  <div key={task._id} className="surface-card p-5.5 border-emerald-100 flex flex-col justify-between hover:border-emerald-300 transition-all shadow-2xs">
+                    <div>
+                      {/* Top Header: Title & Status Badge */}
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-extrabold text-[#172117] text-lg leading-snug">{task.foodType}</h3>
+                          <p className="text-xs font-bold text-primary-700 mt-0.5">
+                            {task.quantity ? `${task.quantity} meals` : 'Donation meals'}
+                          </p>
+                        </div>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 shrink-0">
+                          ✓ Completed
+                        </span>
+                      </div>
+
+                      {/* Operational Route: Pickup & Delivery Location */}
+                      <div className="my-3.5 p-3.5 bg-[#faf8f4] rounded-2xl border border-[#e8e2d5] space-y-2.5 text-xs">
+                        <div className="flex items-start gap-2">
+                          <span className="text-emerald-700 shrink-0 mt-0.5 text-sm">📍</span>
+                          <div className="min-w-0">
+                            <span className="font-bold text-gray-400 uppercase text-[10px] tracking-wider block">Pickup</span>
+                            <p className="font-semibold text-gray-900 leading-tight truncate">
+                              {pickupAddress}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="border-t border-[#e8e2d5]/60 pt-2 flex items-start gap-2">
+                          <span className="text-indigo-700 shrink-0 mt-0.5 text-sm">📍</span>
+                          <div className="min-w-0">
+                            <span className="font-bold text-gray-400 uppercase text-[10px] tracking-wider block">Delivered to</span>
+                            <p className="font-semibold text-gray-900 leading-tight truncate">
+                              {dropoffAddress}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Donor & NGO Attribution */}
+                      <div className="grid grid-cols-2 gap-2 text-xs py-2 px-1 text-gray-600 mb-3 border-b border-[#e8e2d5]/80">
+                        <div>
+                          <span className="text-[10px] uppercase font-bold text-gray-400 block">Donor</span>
+                          <strong className="text-gray-800 font-semibold">{donorName}</strong>
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase font-bold text-gray-400 block">NGO</span>
+                          <strong className="text-gray-800 font-semibold">{ngoName}</strong>
+                        </div>
+                      </div>
+
+                      {/* Review & Feedback Presentation */}
+                      {feedbackText && (
+                        <div className="my-3 p-3 bg-amber-50/70 rounded-2xl border border-amber-200/90 text-xs text-amber-950">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-1 text-amber-500 font-bold">
+                              {'★'.repeat(ratingScore)}
+                              <span className="text-xs font-extrabold text-amber-900 ml-1">
+                                {Number(ratingScore).toFixed(1)}
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700/90">
+                              Feedback
+                            </span>
+                          </div>
+                          <p className="italic font-medium text-gray-800 text-xs leading-relaxed">
+                            "{feedbackText}"
+                          </p>
+                          <span className="text-[10px] text-gray-500 font-semibold block mt-1">
+                            — Donor
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <p className="text-[11px] text-gray-400 mt-3">
-                    Completed: {task.deliveredAt ? new Date(task.deliveredAt).toLocaleString() : 'Done'}
-                  </p>
-                </div>
-              ))}
+
+                    {/* Completion Timestamp & Optional Proof Link */}
+                    <div className="pt-3 border-t border-[#e8e2d5] flex items-center justify-between text-xs text-gray-500">
+                      <span className="text-[11px] font-medium text-gray-500">
+                        Completed: {formatDeliveredDate(task.deliveredAt || task.updatedAt)}
+                      </span>
+                      {task.deliveryProofUrl && (
+                        <a
+                          href={task.deliveryProofUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary-700 font-bold hover:underline inline-flex items-center gap-1 text-[11px]"
+                        >
+                          Proof <HiExternalLink size={12} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -633,13 +971,13 @@ const VolunteerDashboard = () => {
       {/* Modal 1: Pickup OTP Modal */}
       {activeModal === 'pickupOtp' && selectedTask && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 animate-fade-in-up">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#e8e2d5] animate-scale-in">
             <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                 <HiKey size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>
+                <h3 className="text-lg font-bold text-[#172117]" style={{ fontFamily: 'var(--font-sans)' }}>
                   Enter Pickup OTP
                 </h3>
                 <p className="text-xs text-gray-500">Ask the donor for their 6-digit confirmation code</p>
@@ -653,10 +991,10 @@ const VolunteerDashboard = () => {
                 value={otpInput}
                 onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
                 placeholder="123456"
-                className="w-full text-center tracking-widest text-2xl font-mono py-3 border-2 border-emerald-200 rounded-2xl focus:border-emerald-500 focus:outline-none bg-emerald-50/30"
+                className="w-full text-center tracking-widest text-2xl font-mono py-3 border-2 border-emerald-200 rounded-2xl focus:border-emerald-600 focus:outline-none bg-emerald-50/20"
               />
               {modalError && (
-                <p className="text-xs text-red-600 font-medium mt-2 flex items-center gap-1">
+                <p className="text-xs text-red-600 font-semibold mt-2 flex items-center gap-1">
                   <HiExclamationCircle /> {modalError}
                 </p>
               )}
@@ -665,14 +1003,14 @@ const VolunteerDashboard = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setActiveModal(null)}
-                className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-all cursor-pointer"
+                className="flex-1 btn-secondary text-xs sm:text-sm py-2.5 justify-center"
               >
                 Cancel
               </button>
               <button
                 onClick={handleVerifyPickup}
                 disabled={actionLoading}
-                className="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all cursor-pointer disabled:opacity-50"
+                className="flex-1 btn-primary text-xs sm:text-sm py-2.5 justify-center"
               >
                 Verify & Pick Up
               </button>
@@ -684,16 +1022,16 @@ const VolunteerDashboard = () => {
       {/* Modal 2: Delivery OTP Modal */}
       {activeModal === 'deliveryOtp' && selectedTask && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 animate-fade-in-up">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#e8e2d5] animate-scale-in">
             <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
                 <HiKey size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>
-                  Enter Delivery OTP
+                <h3 className="text-lg font-bold text-[#172117]" style={{ fontFamily: 'var(--font-sans)' }}>
+                  Enter Delivery Dropoff OTP
                 </h3>
-                <p className="text-xs text-gray-500">Ask the NGO staff for their 6-digit delivery code</p>
+                <p className="text-xs text-gray-500">Ask the NGO staff for their 6-digit handover code</p>
               </div>
             </div>
 
@@ -704,10 +1042,10 @@ const VolunteerDashboard = () => {
                 value={otpInput}
                 onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
                 placeholder="654321"
-                className="w-full text-center tracking-widest text-2xl font-mono py-3 border-2 border-indigo-200 rounded-2xl focus:border-indigo-500 focus:outline-none bg-indigo-50/30"
+                className="w-full text-center tracking-widest text-2xl font-mono py-3 border-2 border-indigo-200 rounded-2xl focus:border-indigo-600 focus:outline-none bg-indigo-50/20"
               />
               {modalError && (
-                <p className="text-xs text-red-600 font-medium mt-2 flex items-center gap-1">
+                <p className="text-xs text-red-600 font-semibold mt-2 flex items-center gap-1">
                   <HiExclamationCircle /> {modalError}
                 </p>
               )}
@@ -716,14 +1054,14 @@ const VolunteerDashboard = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setActiveModal(null)}
-                className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-all cursor-pointer"
+                className="flex-1 btn-secondary text-xs sm:text-sm py-2.5 justify-center"
               >
                 Cancel
               </button>
               <button
                 onClick={handleVerifyDelivery}
                 disabled={actionLoading}
-                className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all cursor-pointer disabled:opacity-50"
+                className="flex-1 btn-primary text-xs sm:text-sm py-2.5 justify-center bg-indigo-700 hover:bg-indigo-800"
               >
                 Verify Delivery
               </button>
@@ -735,36 +1073,36 @@ const VolunteerDashboard = () => {
       {/* Modal 3: Delivery Proof & Final Complete */}
       {activeModal === 'proof' && selectedTask && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 animate-fade-in-up">
-            <h3 className="text-lg font-bold text-gray-800 mb-1" style={{ fontFamily: 'var(--font-sans)' }}>
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#e8e2d5] animate-scale-in">
+            <h3 className="text-lg font-bold text-[#172117] mb-1" style={{ fontFamily: 'var(--font-sans)' }}>
               Complete Delivery
             </h3>
-            <p className="text-xs text-gray-500 mb-4">Attach optional proof of handover photo & notes</p>
+            <p className="text-xs text-gray-500 mb-4">Attach an optional photo of handover & notes</p>
 
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Proof Photo (Optional)</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Proof Photo (Optional)</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => setProofFile(e.target.files[0])}
-                  className="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer"
+                  className="input-field text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Handover Notes</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Handover Notes</label>
                 <textarea
                   rows={3}
                   value={deliveryNotes}
                   onChange={(e) => setDeliveryNotes(e.target.value)}
-                  placeholder="e.g. Handed 40 lunch packets to pantry coordinator"
-                  className="w-full p-3 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                  placeholder="e.g. Handed 50 lunch packets to pantry coordinator"
+                  className="input-field text-xs"
                 />
               </div>
 
               {modalError && (
-                <p className="text-xs text-red-600 font-medium flex items-center gap-1">
+                <p className="text-xs text-red-600 font-semibold flex items-center gap-1">
                   <HiExclamationCircle /> {modalError}
                 </p>
               )}
@@ -773,14 +1111,14 @@ const VolunteerDashboard = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setActiveModal(null)}
-                className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-all cursor-pointer"
+                className="flex-1 btn-secondary text-xs sm:text-sm py-2.5 justify-center"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCompleteTask}
                 disabled={actionLoading}
-                className="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all cursor-pointer disabled:opacity-50"
+                className="flex-1 btn-primary text-xs sm:text-sm py-2.5 justify-center"
               >
                 Finish & Mark Delivered
               </button>
@@ -792,103 +1130,62 @@ const VolunteerDashboard = () => {
       {/* Modal 4: Vehicle & Profile Edit */}
       {activeModal === 'profile' && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 animate-fade-in-up">
-            <h3 className="text-lg font-bold text-gray-800 mb-4" style={{ fontFamily: 'var(--font-sans)' }}>
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#e8e2d5] animate-scale-in">
+            <h3 className="text-lg font-bold text-[#172117] mb-2" style={{ fontFamily: 'var(--font-sans)' }}>
               Update Vehicle Information
             </h3>
+            <p className="text-xs text-gray-500 mb-4">
+              Keeping your transport type accurate helps NGOs match appropriate food quantities.
+            </p>
 
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Vehicle Type</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Vehicle Type & Estimated Capacity</label>
                 <select
                   value={vehicleType}
                   onChange={(e) => setVehicleType(e.target.value)}
-                  className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white"
+                  className="input-field text-xs sm:text-sm font-medium"
                 >
-                  <option value="bike">Motorcycle / Scooter (Bike)</option>
-                  <option value="car">Car / Sedan</option>
-                  <option value="van">Van / Mini Truck</option>
-                  <option value="bicycle">Bicycle</option>
-                  <option value="walk">On Foot / Walk</option>
-                  <option value="other">Other</option>
+                  <option value="car">🚗 Car (Capacity: 50–100 meals)</option>
+                  <option value="bike">🏍️ Motorcycle (Capacity: 10–25 meals)</option>
+                  <option value="scooter">🛵 Scooter (Capacity: 10–25 meals)</option>
+                  <option value="van">🚐 Van / Mini-Truck (Capacity: 150–300+ meals)</option>
+                  <option value="bicycle">🚲 Bicycle (Capacity: 5–10 meals)</option>
+                  <option value="other">🚶 On Foot / Other (Small parcels)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Vehicle License Plate / Number</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Vehicle Plate / Registration</label>
                 <input
                   type="text"
                   value={vehicleNumber}
                   onChange={(e) => setVehicleNumber(e.target.value)}
-                  placeholder="e.g. MH-01-AB-1234"
-                  className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none uppercase"
+                  placeholder="e.g. GJ-07-AB-1234"
+                  className="input-field"
                 />
               </div>
+
+              {modalError && (
+                <p className="text-xs text-red-600 font-semibold">{modalError}</p>
+              )}
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setActiveModal(null)}
-                className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-all cursor-pointer"
+                className="flex-1 btn-secondary text-xs sm:text-sm py-2.5 justify-center"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUpdateVehicleProfile}
                 disabled={actionLoading}
-                className="flex-1 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-bold hover:bg-primary-700 transition-all cursor-pointer disabled:opacity-50"
+                className="flex-1 btn-primary text-xs sm:text-sm py-2.5 justify-center"
               >
-                Save Changes
+                Save Details
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal 5: Ratings & Reviews Breakdown */}
-      {activeModal === 'ratingsBreakdown' && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 animate-fade-in-up">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-bold text-gray-800" style={{ fontFamily: 'var(--font-sans)' }}>
-                  Volunteer Ratings & Feedback
-                </h3>
-                <p className="text-xs text-gray-500">Reviews submitted by partnering NGOs</p>
-              </div>
-              <div className="text-right">
-                <span className="text-2xl font-bold text-amber-500">{stats.ratingCount > 0 ? Number(stats.rating).toFixed(1) : '5.0'} ★</span>
-                <p className="text-[10px] text-gray-400">{stats.ratingCount || 0} reviews</p>
-              </div>
-            </div>
-
-            {/* List of Reviews */}
-            <div className="max-h-60 overflow-y-auto space-y-3 my-4 pr-1">
-              {(!stats.ratings || stats.ratings.length === 0) ? (
-                <div className="p-8 text-center bg-gray-50 rounded-2xl border border-gray-100 text-gray-500 text-xs">
-                  <p className="font-semibold text-gray-700 mb-1">No reviews yet!</p>
-                  <p className="text-gray-400">Complete deliveries and NGOs will leave star ratings and notes here.</p>
-                </div>
-              ) : (
-                stats.ratings.map((r, index) => (
-                  <div key={r._id || index} className="p-3 bg-gray-50 rounded-2xl border border-gray-100 text-xs">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="font-semibold text-gray-800">{r.ratedBy?.name || 'NGO Partner'}</span>
-                      <span className="text-amber-500 font-bold">{'★'.repeat(r.score)} ({r.score}/5)</span>
-                    </div>
-                    {r.feedback && <p className="text-gray-600 italic mt-1">"{r.feedback}"</p>}
-                    <p className="text-[10px] text-gray-400 mt-2">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'Recent'}</p>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <button
-              onClick={() => setActiveModal(null)}
-              className="w-full py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-all cursor-pointer"
-            >
-              Close
-            </button>
           </div>
         </div>
       )}

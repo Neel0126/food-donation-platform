@@ -8,9 +8,14 @@ const volunteerProfileSchema = new mongoose.Schema(
       required: true,
       unique: true
     },
+    associatedNgo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null
+    },
     vehicleType: {
       type: String,
-      enum: ['bike', 'car', 'van', 'truck', 'bicycle', 'walk', 'other'],
+      enum: ['bike', 'scooter', 'car', 'van', 'truck', 'bicycle', 'walk', 'other'],
       default: 'bike'
     },
     vehicleNumber: {
@@ -85,6 +90,8 @@ const volunteerProfileSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+volunteerProfileSchema.index({ associatedNgo: 1 });
 
 const VolunteerProfile = mongoose.model('VolunteerProfile', volunteerProfileSchema);
 

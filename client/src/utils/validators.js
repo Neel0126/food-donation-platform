@@ -73,6 +73,11 @@ export const validateRegistrationForm = (formData) => {
     errors.address = validateRequired(formData.address, 'Organization address');
   }
 
+  // Volunteer-specific validations
+  if (formData.role === 'volunteer') {
+    errors.associatedNgo = validateRequired(formData.associatedNgo, 'Affiliated NGO partner');
+  }
+
   // Remove empty error messages
   Object.keys(errors).forEach((key) => {
     if (!errors[key]) delete errors[key];

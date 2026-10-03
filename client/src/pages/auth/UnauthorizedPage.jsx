@@ -10,27 +10,29 @@ const UnauthorizedPage = () => {
   const { user, isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center px-4 font-sans">
+    <div className="min-h-screen bg-[#f8f6f0] flex items-center justify-center px-4 font-body">
       <div className="text-center max-w-md animate-fade-in-up">
-        <div className="mx-auto h-16 w-16 rounded-2xl bg-red-50 flex items-center justify-center mb-4 animate-scale-in">
-          <HiShieldExclamation size={32} className="text-red-500" />
+        <div className="mx-auto h-16 w-16 rounded-3xl bg-red-50 text-red-600 border border-red-200 flex items-center justify-center mb-4 shadow-2xs">
+          <HiShieldExclamation size={32} />
         </div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2" style={{ fontFamily: 'var(--font-sans)' }}>Access Denied</h1>
-        <p className="text-gray-500 mb-6">
-          You do not have permission to view this page. Please contact an administrator if you believe this is an error.
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#172117] mb-2" style={{ fontFamily: 'var(--font-sans)' }}>
+          Access Restricted
+        </h1>
+        <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+          You don't have authorization to access this area with your current account privileges.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           {isAuthenticated && user ? (
-            <Link to={getDashboardPath(user.role)} className="btn-primary no-underline">
+            <Link to={getDashboardPath(user.role)} className="btn-primary no-underline px-6 py-2.5">
               Go to My Dashboard
             </Link>
           ) : (
-            <Link to="/login" className="btn-primary no-underline">
-              Go to Login
+            <Link to="/login" className="btn-primary no-underline px-6 py-2.5">
+              Log In
             </Link>
           )}
-          <Link to="/" className="btn-secondary no-underline">
-            Back to Home
+          <Link to="/" className="btn-secondary no-underline px-6 py-2.5">
+            Return Home
           </Link>
         </div>
       </div>
