@@ -86,3 +86,9 @@ export const fileComplaint = async (data) => {
   const response = await api.post('/admin/complaints', data);
   return response.data;
 };
+
+// ── Get my complaints (any authenticated user) ──
+export const getMyComplaints = async () => {
+  const response = await api.get('/admin/my-complaints');
+  return response.data;
+};

@@ -3,6 +3,7 @@ const Donation = require('../models/Donation');
 const NgoProfile = require('../models/NgoProfile');
 const VolunteerProfile = require('../models/VolunteerProfile');
 const Complaint = require('../models/Complaint');
+const Notification = require('../models/Notification');
 const { isValidDonationTransition } = require('../utils/stateMachine');
 const { escapeRegex, safeString } = require('../utils/sanitizeQuery');
 
@@ -626,6 +627,26 @@ const resolveComplaint = async (req, res) => {
 
     await complaint.save();
 
+    // Notify complainant about admin review & resolution
+    try {
+      const statusTitle =
+        status === 'resolved'
+          ? 'resolved'
+          : status === 'investigating'
+          ? 'placed under active investigation'
+          : 'dismissed';
+      const adminNoteText = adminNotes ? ` Admin Note: "${adminNotes}"` : '.';
+
+      await Notification.create({
+        user: complaint.complainant,
+        message: `Your complaint regarding ${complaint.type.replace(/_/g, ' ')} has been ${statusTitle} by platform admins.${adminNoteText}`,
+        type: 'system',
+        relatedDonation: complaint.donation || undefined
+      });
+    } catch (notifErr) {
+      console.error('Failed to notify complainant of resolution:', notifErr);
+    }
+
     const populated = await Complaint.findById(complaint._id)
       .populate('complainant', 'name email role')
       .populate('against', 'name email role')
@@ -675,6 +696,18 @@ const fileComplaint = async (req, res) => {
       description
     });
 
+    // Notify complainant of registered submission
+    try {
+      await Notification.create({
+        user: req.user._id,
+        message: `Your report regarding ${type.replace(/_/g, ' ')} has been registered. Platform administrators have been notified for review.`,
+        type: 'system',
+        relatedDonation: donation || undefined
+      });
+    } catch (notifErr) {
+      console.error('Failed to notify on complaint filing:', notifErr);
+    }
+
     const populated = await Complaint.findById(complaint._id)
       .populate('complainant', 'name email role')
       .populate('against', 'name email role');
@@ -685,6 +718,22 @@ const fileComplaint = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in fileComplaint:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Get current user's filed complaints
+// @route   GET /api/admin/my-complaints
+// @access  Private (any authenticated user)
+const getMyComplaints = async (req, res) => {
+  try {
+    const complaints = await Complaint.find({ complainant: req.user._id })
+      .populate('against', 'name email role')
+      .populate('donation', 'foodType quantity status')
+      .sort({ createdAt: -1 });
+    res.json(complaints);
+  } catch (error) {
+    console.error('Error in getMyComplaints:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -704,5 +753,6 @@ module.exports = {
   getAllComplaints,
   getComplaintById,
   resolveComplaint,
-  fileComplaint
+  fileComplaint,
+  getMyComplaints
 };

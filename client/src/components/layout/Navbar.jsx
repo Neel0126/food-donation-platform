@@ -11,7 +11,9 @@ import {
   HiCheck,
   HiUser,
   HiSparkles,
+  HiShieldCheck,
 } from 'react-icons/hi';
+import MyComplaintsModal from '../common/MyComplaintsModal';
 
 /**
  * Modern, role-aware navigation bar for ShareBite
@@ -21,6 +23,7 @@ const Navbar = ({ onToggleSidebar, activeTab, onTabChange }) => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotification();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showComplaintsModal, setShowComplaintsModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const notifRef = useRef(null);
@@ -193,6 +196,18 @@ const Navbar = ({ onToggleSidebar, activeTab, onTabChange }) => {
           {/* Right: Authenticated User Controls or Public CTAs */}
           {user ? (
             <div className="flex items-center gap-3">
+              {/* Complaints & Dispute Status Button */}
+              <button
+                type="button"
+                onClick={() => setShowComplaintsModal(true)}
+                className="p-2.5 rounded-2xl text-gray-600 hover:text-primary-700 hover:bg-primary-100/60 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Disputes & Resolution Status"
+                aria-label="Disputes & Resolution Status"
+              >
+                <HiShieldCheck size={20} />
+                <span className="hidden xl:inline text-xs font-semibold text-gray-700">Disputes</span>
+              </button>
+
               {/* Notifications Dropdown */}
               <div className="relative" ref={notifRef}>
                 <button
@@ -252,6 +267,20 @@ const Navbar = ({ onToggleSidebar, activeTab, onTabChange }) => {
                           </div>
                         ))
                       )}
+                    </div>
+
+                    <div className="p-2.5 bg-[#faf8f4] border-t border-[#e8e2d5] text-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowNotifications(false);
+                          setShowComplaintsModal(true);
+                        }}
+                        className="text-xs font-bold text-amber-800 hover:text-amber-950 flex items-center justify-center gap-1.5 w-full py-1 cursor-pointer"
+                      >
+                        <HiShieldCheck size={15} className="text-amber-600" />
+                        <span>View My Complaints & Status →</span>
+                      </button>
                     </div>
                   </div>
                 )}
@@ -355,6 +384,18 @@ const Navbar = ({ onToggleSidebar, activeTab, onTabChange }) => {
                 </Link>
 
                 <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowComplaintsModal(true);
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-amber-800 hover:bg-amber-50 transition-all cursor-pointer"
+                >
+                  <HiShieldCheck size={18} className="text-amber-600" />
+                  My Complaints & Status
+                </button>
+
+                <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     logout();
@@ -409,6 +450,12 @@ const Navbar = ({ onToggleSidebar, activeTab, onTabChange }) => {
           </div>
         </div>
       )}
+
+      {/* Live Complaints & Resolution Status Modal */}
+      <MyComplaintsModal
+        isOpen={showComplaintsModal}
+        onClose={() => setShowComplaintsModal(false)}
+      />
     </nav>
   );
 };
