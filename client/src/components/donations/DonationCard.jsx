@@ -11,9 +11,11 @@ import {
   HiTrash,
   HiExternalLink,
   HiRefresh,
+  HiExclamationCircle,
 } from 'react-icons/hi';
 import StatusBadge from '../ui/StatusBadge';
 import DonationLifecycle from '../ui/DonationLifecycle';
+import ReportComplaintModal from '../common/ReportComplaintModal';
 import { regeneratePickupOtp } from '../../services/donationService';
 
 /**
@@ -34,6 +36,7 @@ const DonationCard = ({
   const [revealedPhone, setRevealedPhone] = useState(false);
   const [updatingOtp, setUpdatingOtp] = useState(false);
   const [currentPickupOtp, setCurrentPickupOtp] = useState(donation.pickupOtp);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const handleRegeneratePickupOtp = async () => {
     if (!window.confirm('Do you want to generate a new Pickup Verification Code? The previous code will be invalidated.')) return;
@@ -354,29 +357,45 @@ const DonationCard = ({
               <div />
             )}
 
-            {/* Pending actions (Edit / Cancel) */}
-            {isPending && (
-              <div className="flex items-center gap-2">
-                {onEdit && (
-                  <button
-                    type="button"
-                    onClick={() => onEdit(donation)}
-                    className="btn-secondary text-xs px-3.5 py-1.5"
-                  >
-                    <HiPencil size={14} /> Edit
-                  </button>
-                )}
-                {onCancel && (
-                  <button
-                    type="button"
-                    onClick={() => onCancel(donation._id)}
-                    className="px-3 py-1.5 rounded-full text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                  >
-                    <HiTrash size={14} className="inline mr-1" /> Cancel
-                  </button>
-                )}
-              </div>
-            )}
+            {/* Actions: Edit, Cancel, or Report Issue */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Report Issue link for any donation with assigned partner / non-pending */}
+              {(donation.acceptedBy || donation.assignedVolunteer || ['accepted', 'assigned', 'picked_up', 'delivered'].includes(donation.status)) && (
+                <button
+                  type="button"
+                  onClick={() => setIsReportModalOpen(true)}
+                  className="text-xs text-gray-400 hover:text-rose-600 transition-colors cursor-pointer inline-flex items-center gap-1 font-medium hover:underline py-1.5 px-1"
+                  title="Report an issue or dispute regarding this donation"
+                >
+                  <HiExclamationCircle size={14} />
+                  <span>Report Issue</span>
+                </button>
+              )}
+
+              {/* Pending actions (Edit / Cancel) */}
+              {isPending && (
+                <div className="flex items-center gap-2">
+                  {onEdit && (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(donation)}
+                      className="btn-secondary text-xs px-3.5 py-1.5"
+                    >
+                      <HiPencil size={14} /> Edit
+                    </button>
+                  )}
+                  {onCancel && (
+                    <button
+                      type="button"
+                      onClick={() => onCancel(donation._id)}
+                      className="px-3 py-1.5 rounded-full text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                    >
+                      <HiTrash size={14} className="inline mr-1" /> Cancel
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Collapsible Timeline History Log */}
@@ -410,6 +429,13 @@ const DonationCard = ({
           )}
         </div>
       </div>
+
+      {/* Report Complaint / Issue Modal */}
+      <ReportComplaintModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        donation={donation}
+      />
     </div>
   );
 };

@@ -20,11 +20,13 @@ import {
   HiTruck,
   HiExternalLink,
   HiX,
+  HiExclamationCircle,
 } from 'react-icons/hi';
 import StatCounter from '../../components/ui/StatCounter';
 import StatusBadge from '../../components/ui/StatusBadge';
 import EmptyState from '../../components/ui/EmptyState';
 import DonationLifecycle from '../../components/ui/DonationLifecycle';
+import ReportComplaintModal from '../../components/common/ReportComplaintModal';
 import { StatSkeleton } from '../../components/ui/Skeleton';
 import {
   getNearbyDonations,
@@ -74,6 +76,10 @@ const NGODashboard = () => {
   const [selectedDonationForRate, setSelectedDonationForRate] = useState(null);
   const [ratingScore, setRatingScore] = useState(5);
   const [ratingFeedback, setRatingFeedback] = useState('');
+
+  // Complaint / Incident Reporting Modal State
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [selectedDonationForReport, setSelectedDonationForReport] = useState(null);
 
   // Proximity & Location Filtering State
   const [locationScope, setLocationScope] = useState('all'); // 'my_city' | 'all' | 'nearby'
@@ -800,6 +806,21 @@ const NGODashboard = () => {
                       </>
                     )}
                   </div>
+
+                  {/* Discreet report link */}
+                  <div className="pt-2 text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedDonationForReport(donation);
+                        setIsReportModalOpen(true);
+                      }}
+                      className="text-[11px] text-gray-400 hover:text-rose-600 transition-colors cursor-pointer inline-flex items-center gap-1 font-medium hover:underline"
+                    >
+                      <HiExclamationCircle size={13} />
+                      <span>Food quality or volunteer issue? Report to Admin</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -869,12 +890,23 @@ const NGODashboard = () => {
                       </div>
                     )}
 
-                    <p className="text-[10px] text-gray-400">
-                      Delivered:{' '}
-                      {donation.deliveredAt
-                        ? new Date(donation.deliveredAt).toLocaleDateString()
-                        : 'Completed'}
-                    </p>
+                    <div className="pt-1 flex items-center justify-between text-[11px] text-gray-400">
+                      <span>
+                        Delivered {donation.deliveredAt ? new Date(donation.deliveredAt).toLocaleDateString() : 'Completed'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedDonationForReport(donation);
+                          setIsReportModalOpen(true);
+                        }}
+                        className="text-gray-400 hover:text-rose-600 transition-colors cursor-pointer inline-flex items-center gap-1 hover:underline font-medium"
+                        title="Report food quality or discrepancy"
+                      >
+                        <HiExclamationCircle size={13} />
+                        <span>Report Issue</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1526,6 +1558,19 @@ const NGODashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Report Complaint / Issue Modal */}
+      <ReportComplaintModal
+        isOpen={isReportModalOpen}
+        onClose={() => {
+          setIsReportModalOpen(false);
+          setSelectedDonationForReport(null);
+        }}
+        donation={selectedDonationForReport}
+        onSuccess={() => {
+          showFeedback('Official complaint filed. The platform administration team has been notified.');
+        }}
+      />
     </DashboardLayout>
   );
 };

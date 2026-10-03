@@ -20,9 +20,12 @@ import {
   HiPhotograph,
   HiUpload,
   HiOfficeBuilding,
+  HiExclamationCircle,
 } from 'react-icons/hi';
 import StatCounter from '../../components/ui/StatCounter';
 import { getMyNgoProfile, updateNgoProfile } from '../../services/ngoService';
+import { getMyComplaints } from '../../services/adminService';
+import MyComplaintsModal from '../../components/common/MyComplaintsModal';
 
 /**
  * Modern Profile & Account Settings Page
@@ -58,6 +61,16 @@ const ProfilePage = () => {
   const [serverError, setServerError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [myComplaints, setMyComplaints] = useState([]);
+  const [showComplaintsModal, setShowComplaintsModal] = useState(false);
+
+  useEffect(() => {
+    getMyComplaints()
+      .then((data) => {
+        if (Array.isArray(data)) setMyComplaints(data);
+      })
+      .catch(() => {});
+  }, []);
 
   // Pre-fill form with user data & NGO profile if role is NGO
   useEffect(() => {
@@ -584,6 +597,86 @@ const ProfilePage = () => {
               </div>
             </div>
 
+            {/* Safety & Complaints Section */}
+            <div className="surface-card p-6 border-amber-200/80 bg-gradient-to-br from-amber-50/30 to-white">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                    <HiExclamationCircle size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[#172117]" style={{ fontFamily: 'var(--font-sans)' }}>
+                      Safety & Complaints
+                    </h3>
+                    <p className="text-[11px] text-gray-500">
+                      Disputes & quality reports filed by you
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-mono">
+                  {myComplaints.length}
+                </span>
+              </div>
+
+              {myComplaints.length === 0 ? (
+                <div className="text-xs text-gray-500 bg-[#faf8f4] p-3 rounded-2xl border border-[#e8e2d5] mt-3">
+                  <p className="font-semibold text-gray-700 mb-0.5">No filed complaints</p>
+                  <p className="text-[11px] leading-relaxed">
+                    You can report food quality or no-shows directly on your active and completed cards using the <strong>Report Issue</strong> button.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2 mt-3 max-h-64 overflow-y-auto pr-1">
+                  {myComplaints.map((c) => (
+                    <div
+                      key={c._id}
+                      className="p-3 bg-white rounded-xl border border-gray-200 text-xs space-y-1.5 shadow-2xs"
+                    >
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-bold text-gray-800 capitalize">
+                          {c.type.replace(/_/g, ' ')}
+                        </span>
+                        <span
+                          className={`px-2 py-0.2 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            c.status === 'resolved'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : c.status === 'investigating'
+                              ? 'bg-blue-100 text-blue-800'
+                              : c.status === 'dismissed'
+                              ? 'bg-gray-100 text-gray-600'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {c.status}
+                        </span>
+                      </div>
+                      <p className="text-gray-600 text-[11px] line-clamp-2">
+                        {c.description}
+                      </p>
+                      {c.adminNotes && (
+                        <div className="p-2 bg-emerald-50 rounded-lg border border-emerald-200 text-[11px] text-emerald-900 mt-1">
+                          <strong>Admin Note:</strong> {c.adminNotes}
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between text-[10px] text-gray-400 pt-1 border-t border-gray-100">
+                        <span>Reported: {c.against?.name || 'Partner'}</span>
+                        <span>{new Date(c.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setShowComplaintsModal(true)}
+                className="w-full mt-3.5 btn-secondary text-xs py-2 justify-center flex items-center gap-1.5 border-amber-300 text-amber-900 hover:bg-amber-50 cursor-pointer shadow-2xs font-semibold"
+              >
+                <HiShieldCheck size={16} className="text-amber-700" />
+                <span>View Full Dispute & Resolution History</span>
+              </button>
+            </div>
+
             {/* Impact Promise Card */}
             <div className="surface-card p-6 bg-gradient-to-br from-primary-50/60 to-white border-primary-200">
               <span className="text-2xl">🌱</span>
@@ -597,6 +690,12 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Live Complaints & Resolution Status Modal */}
+      <MyComplaintsModal
+        isOpen={showComplaintsModal}
+        onClose={() => setShowComplaintsModal(false)}
+      />
     </DashboardLayout>
   );
 };

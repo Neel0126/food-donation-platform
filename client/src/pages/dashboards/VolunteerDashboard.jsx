@@ -20,6 +20,7 @@ import {
 import StatCounter from '../../components/ui/StatCounter';
 import StatusBadge from '../../components/ui/StatusBadge';
 import EmptyState from '../../components/ui/EmptyState';
+import ReportComplaintModal from '../../components/common/ReportComplaintModal';
 import { StatSkeleton } from '../../components/ui/Skeleton';
 import {
   getVolunteerProfile,
@@ -86,6 +87,10 @@ const VolunteerDashboard = () => {
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [proofFile, setProofFile] = useState(null);
   const [modalError, setModalError] = useState('');
+
+  // Complaint / Incident Reporting Modal State
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [selectedTaskForReport, setSelectedTaskForReport] = useState(null);
 
   // Profile Edit State
   const [vehicleType, setVehicleType] = useState('bike');
@@ -833,6 +838,21 @@ const VolunteerDashboard = () => {
                           )}
                         </>
                       )}
+
+                      {/* Discreet safety / dispute reporting link */}
+                      <div className="pt-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedTaskForReport(task);
+                            setIsReportModalOpen(true);
+                          }}
+                          className="text-[11px] text-gray-400 hover:text-rose-600 transition-colors cursor-pointer inline-flex items-center gap-1 font-medium hover:underline"
+                        >
+                          <HiExclamationCircle size={13} />
+                          <span>Need help or experiencing an issue? Report to Admin</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -946,19 +966,33 @@ const VolunteerDashboard = () => {
 
                     {/* Completion Timestamp & Optional Proof Link */}
                     <div className="pt-3 border-t border-[#e8e2d5] flex items-center justify-between text-xs text-gray-500">
-                      <span className="text-[11px] font-medium text-gray-500">
-                        Completed: {formatDeliveredDate(task.deliveredAt || task.updatedAt)}
+                      <span className="text-[11px] font-medium text-gray-400">
+                        Completed {formatDeliveredDate(task.deliveredAt || task.updatedAt)}
                       </span>
-                      {task.deliveryProofUrl && (
-                        <a
-                          href={task.deliveryProofUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-primary-700 font-bold hover:underline inline-flex items-center gap-1 text-[11px]"
+                      <div className="flex items-center gap-2.5">
+                        {task.deliveryProofUrl && (
+                          <a
+                            href={task.deliveryProofUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary-700 font-bold hover:underline inline-flex items-center gap-1 text-[11px]"
+                          >
+                            Proof <HiExternalLink size={12} />
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedTaskForReport(task);
+                            setIsReportModalOpen(true);
+                          }}
+                          className="text-gray-400 hover:text-rose-600 transition-colors cursor-pointer inline-flex items-center gap-1 text-[11px] hover:underline"
+                          title="Report problem or dispute regarding this delivery"
                         >
-                          Proof <HiExternalLink size={12} />
-                        </a>
-                      )}
+                          <HiExclamationCircle size={13} />
+                          <span>Report Issue</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -1189,6 +1223,22 @@ const VolunteerDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Report Complaint / Issue Modal */}
+      <ReportComplaintModal
+        isOpen={isReportModalOpen}
+        onClose={() => {
+          setIsReportModalOpen(false);
+          setSelectedTaskForReport(null);
+        }}
+        donation={selectedTaskForReport}
+        onSuccess={() => {
+          setFeedback({
+            type: 'success',
+            message: 'Official report submitted. Platform administrators will investigate.',
+          });
+        }}
+      />
     </DashboardLayout>
   );
 };

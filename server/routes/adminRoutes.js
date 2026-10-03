@@ -20,11 +20,13 @@ const {
   getAllComplaints,
   getComplaintById,
   resolveComplaint,
-  fileComplaint
+  fileComplaint,
+  getMyComplaints
 } = require('../controllers/adminController');
 
-// Complaint filing — any authenticated user can file
+// Complaint filing & viewing my complaints — any authenticated user
 router.post('/complaints', protect, fileComplaint);
+router.get('/my-complaints', protect, getMyComplaints);
 
 // All other admin routes require admin role
 router.use(protect, authorize('admin'));
