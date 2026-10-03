@@ -1,6 +1,10 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
+  if (process.env.SKIP_EMAIL === 'true') {
+    return { messageId: 'mock-benchmark-id' };
+  }
+
   // Create a transporter using SMTP credentials from .env
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,

@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { HiHeart, HiTruck, HiUserGroup, HiArrowRight, HiSparkles, HiShieldCheck, HiOutlineClock } from 'react-icons/hi';
+import { HiHeart, HiTruck, HiUserGroup, HiArrowRight, HiShieldCheck, HiOutlineClock } from 'react-icons/hi';
 import { motion } from 'framer-motion';
 import Navbar from '../components/layout/Navbar';
+import { getPublicStats } from '../services/donationService';
 
 // Smooth animation variants
 const fadeInUp = {
@@ -26,8 +28,26 @@ const popIn = {
 };
 
 const HomePage = () => {
+  const [stats, setStats] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    getPublicStats()
+      .then((data) => {
+        if (mounted && data) {
+          setStats(data);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not load live platform stats:', err?.message);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#f5f0e8] flex flex-col font-sans selection:bg-primary-200 selection:text-primary-900">
+    <div className="min-h-screen bg-[#f8f6f0] flex flex-col font-body selection:bg-primary-200 selection:text-primary-900">
       <Navbar onToggleSidebar={() => {}} />
 
       <main className="flex-1 overflow-x-hidden">
@@ -179,7 +199,7 @@ const HomePage = () => {
         {/* ================= PILL STATS COUNTER ROW ================= */}
         <section className="py-6 -mt-6 mb-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div 
+            <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-40px" }}
@@ -187,58 +207,64 @@ const HomePage = () => {
               className="grid grid-cols-2 md:grid-cols-4 gap-4"
             >
               {/* Stat 1: Meals */}
-              <motion.div 
-                variants={popIn} 
-                className="stat-pill bg-[#b75d31] text-white shadow-md shadow-[#b75d31]/20 cursor-default"
+              <motion.div
+                variants={popIn}
+                className="flex items-center gap-3 bg-[#b75d31] text-white rounded-2xl px-5 py-4 shadow-md shadow-[#b75d31]/25 cursor-default hover:scale-105 transition-transform duration-200"
               >
-                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-lg shrink-0">
+                <div className="h-11 w-11 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
                   🍲
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold tracking-tight">10k+</div>
-                  <div className="text-xs text-white/85 font-medium">Meals Shared</div>
+                  <div className="text-2xl font-extrabold tracking-tight leading-none">
+                    {stats?.mealsShared ? `${stats.mealsShared.toLocaleString()}+` : '320+'}
+                  </div>
+                  <div className="text-xs text-white/80 font-medium mt-0.5">Meals Shared</div>
                 </div>
               </motion.div>
 
               {/* Stat 2: NGOs */}
-              <motion.div 
-                variants={popIn} 
-                className="stat-pill bg-[#9e6231] text-white shadow-md shadow-[#9e6231]/20 cursor-default"
+              <motion.div
+                variants={popIn}
+                className="flex items-center gap-3 bg-[#9e6231] text-white rounded-2xl px-5 py-4 shadow-md shadow-[#9e6231]/25 cursor-default hover:scale-105 transition-transform duration-200"
               >
-                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-lg shrink-0">
+                <div className="h-11 w-11 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
                   🏢
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold tracking-tight">50+</div>
-                  <div className="text-xs text-white/85 font-medium">NGO Partners</div>
+                  <div className="text-2xl font-extrabold tracking-tight leading-none">
+                    {stats?.ngoPartners ? `${stats.ngoPartners}+` : '4+'}
+                  </div>
+                  <div className="text-xs text-white/80 font-medium mt-0.5">NGO Partners</div>
                 </div>
               </motion.div>
 
               {/* Stat 3: Volunteers */}
-              <motion.div 
-                variants={popIn} 
-                className="stat-pill bg-[#d48b3a] text-white shadow-md shadow-[#d48b3a]/20 cursor-default"
+              <motion.div
+                variants={popIn}
+                className="flex items-center gap-3 bg-[#d48b3a] text-white rounded-2xl px-5 py-4 shadow-md shadow-[#d48b3a]/25 cursor-default hover:scale-105 transition-transform duration-200"
               >
-                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-lg shrink-0">
+                <div className="h-11 w-11 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
                   🤝
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold tracking-tight">200+</div>
-                  <div className="text-xs text-white/85 font-medium">Volunteers</div>
+                  <div className="text-2xl font-extrabold tracking-tight leading-none">
+                    {stats?.volunteers ? `${stats.volunteers}+` : '3+'}
+                  </div>
+                  <div className="text-xs text-white/80 font-medium mt-0.5">Volunteers</div>
                 </div>
               </motion.div>
 
-              {/* Stat 4: Zero Waste */}
-              <motion.div 
-                variants={popIn} 
-                className="stat-pill bg-[#6c7841] text-white shadow-md shadow-[#6c7841]/20 cursor-default"
+              {/* Stat 4: Zero Waste Goal */}
+              <motion.div
+                variants={popIn}
+                className="flex items-center gap-3 bg-[#6c7841] text-white rounded-2xl px-5 py-4 shadow-md shadow-[#6c7841]/25 cursor-default hover:scale-105 transition-transform duration-200"
               >
-                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-lg shrink-0">
+                <div className="h-11 w-11 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
                   ♻️
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold tracking-tight">0</div>
-                  <div className="text-xs text-white/85 font-medium">Food Waste Goal</div>
+                  <div className="text-2xl font-extrabold tracking-tight leading-none">Zero</div>
+                  <div className="text-xs text-white/80 font-medium mt-0.5">Food Waste Goal</div>
                 </div>
               </motion.div>
             </motion.div>
@@ -345,12 +371,14 @@ const HomePage = () => {
                   alt="Volunteer handing nutritious food box to community member"
                   className="w-full h-[460px] object-cover hover:scale-105 transition-transform duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold uppercase tracking-wider mb-2">
-                    <HiSparkles /> Community In Action
-                  </div>
-                  <h4 className="text-xl sm:text-2xl font-bold">Making a sustainable, local difference.</h4>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent pointer-events-none" />
+                <div className="absolute bottom-6 left-6 right-6 text-white z-10">
+                  <h4 
+                    className="text-xl sm:text-2xl font-bold !text-white text-white drop-shadow-md leading-snug"
+                    style={{ color: '#ffffff', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}
+                  >
+                    Making a sustainable, local difference.
+                  </h4>
                 </div>
               </motion.div>
 
@@ -388,8 +416,10 @@ const HomePage = () => {
                     <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Avg. Claim Time</div>
                   </div>
                   <div className="bg-white p-5 rounded-2xl border border-[#e6ded3] shadow-xs">
-                    <div className="text-3xl font-extrabold text-primary-800 mb-1" style={{ fontFamily: 'var(--font-sans)' }}>15+</div>
-                    <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Cities Reached</div>
+                    <div className="text-3xl font-extrabold text-primary-800 mb-1" style={{ fontFamily: 'var(--font-sans)' }}>
+                      {stats?.citiesReached ? `${stats.citiesReached}+` : '3+'}
+                    </div>
+                    <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Active Cities</div>
                   </div>
                   <div className="bg-white p-5 rounded-2xl border border-[#e6ded3] shadow-xs">
                     <div className="text-3xl font-extrabold text-emerald-600 mb-1" style={{ fontFamily: 'var(--font-sans)' }}>Secure</div>
@@ -442,7 +472,7 @@ const HomePage = () => {
       </main>
 
       {/* ================= FOOTER ================= */}
-      <footer className="bg-white border-t border-[#e6ded3] py-12 text-center text-sm text-gray-500">
+      <footer className="bg-white border-t border-[#e8e2d5] py-12 text-center text-sm text-gray-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center gap-4">
           <div className="flex items-center gap-2.5">
             <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center text-white text-xs font-bold">

@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-09-30T18:28:07.450Z",
+  "database": "food-donation",
+  "collections": {
+    "users": {
+      "count": 109,
+      "bytes": 41959
+    },
+    "donations": {
+      "count": 1103,
+      "bytes": 1476096
+    },
+    "ngoprofiles": {
+      "count": 48,
+      "bytes": 26611
+    },
+    "volunteerprofiles": {
+      "count": 37,
+      "bytes": 24964
+    },
+    "notifications": {
+      "count": 582,
+      "bytes": 214770
+    }
+  }
+}

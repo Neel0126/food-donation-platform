@@ -3,6 +3,8 @@ const Donation = require('../models/Donation');
 const NgoProfile = require('../models/NgoProfile');
 const VolunteerProfile = require('../models/VolunteerProfile');
 const Complaint = require('../models/Complaint');
+const { isValidDonationTransition } = require('../utils/stateMachine');
+const { escapeRegex, safeString } = require('../utils/sanitizeQuery');
 
 // ────────────────────────────────────────────────────────
 //  DASHBOARD STATISTICS
@@ -119,8 +121,9 @@ const getAllUsers = async (req, res) => {
     }
 
     // Search by name or email
-    if (req.query.search && req.query.search.trim()) {
-      const searchRegex = new RegExp(req.query.search.trim(), 'i');
+    const searchStr = safeString(req.query.search).trim();
+    if (searchStr) {
+      const searchRegex = new RegExp(escapeRegex(searchStr), 'i');
       query.$or = [
         { name: searchRegex },
         { email: searchRegex }
@@ -242,6 +245,20 @@ const deleteUser = async (req, res) => {
       return res.status(400).json({ message: 'Cannot delete your own admin account' });
     }
 
+    // Case 7: Prevent deleting users with active in-progress deliveries
+    const activeDonation = await Donation.findOne({
+      $or: [
+        { donor: user._id, status: { $in: ['accepted', 'assigned', 'picked_up'] } },
+        { acceptedBy: user._id, status: { $in: ['accepted', 'assigned', 'picked_up'] } },
+        { assignedVolunteer: user._id, status: { $in: ['assigned', 'picked_up'] } }
+      ]
+    });
+    if (activeDonation) {
+      return res.status(400).json({
+        message: 'Cannot delete user with active in-progress donations or deliveries. Please complete or reassign active transactions first.'
+      });
+    }
+
     // Cascade clean linked data
     if (user.role === 'ngo') {
       await NgoProfile.deleteOne({ user: user._id });
@@ -269,10 +286,11 @@ const deleteUser = async (req, res) => {
 // @access  Private/Admin
 const getPendingNgos = async (req, res) => {
   try {
-    const statusFilter = req.query.status || 'pending';
+    const allowedStatuses = ['pending', 'approved', 'rejected'];
+    const statusFilter = safeString(req.query.status).trim() || 'pending';
     const query = {};
 
-    if (statusFilter !== 'all') {
+    if (allowedStatuses.includes(statusFilter)) {
       query.verificationStatus = statusFilter;
     }
 
@@ -362,12 +380,15 @@ const getAllDonations = async (req, res) => {
 
     const query = {};
 
-    if (req.query.status && req.query.status !== 'all') {
-      query.status = req.query.status;
+    const validStatuses = ['pending', 'accepted', 'assigned', 'picked_up', 'delivered', 'cancelled', 'expired'];
+    const reqStatus = safeString(req.query.status).trim();
+    if (reqStatus && validStatuses.includes(reqStatus)) {
+      query.status = reqStatus;
     }
 
-    if (req.query.search && req.query.search.trim()) {
-      const searchRegex = new RegExp(req.query.search.trim(), 'i');
+    const searchStr = safeString(req.query.search).trim();
+    if (searchStr) {
+      const searchRegex = new RegExp(escapeRegex(searchStr), 'i');
       query.$or = [
         { foodType: searchRegex },
         { description: searchRegex },
@@ -430,7 +451,7 @@ const updateDonationStatus = async (req, res) => {
   try {
     const { status } = req.body;
 
-    const validStatuses = ['pending', 'accepted', 'assigned', 'picked_up', 'delivered', 'cancelled'];
+    const validStatuses = ['pending', 'accepted', 'assigned', 'picked_up', 'delivered', 'cancelled', 'expired'];
     if (!status || !validStatuses.includes(status)) {
       return res.status(400).json({ message: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
     }
@@ -441,12 +462,39 @@ const updateDonationStatus = async (req, res) => {
     }
 
     const previousStatus = donation.status;
+
+    // Case 9: Idempotency
+    if (previousStatus === status) {
+      return res.status(200).json({
+        message: `Donation is already in status "${status}"`,
+        donation
+      });
+    }
+
+    // Case 7 & 10: Strict State Machine validation with admin rules
+    const transitionCheck = isValidDonationTransition(previousStatus, status, true);
+    if (!transitionCheck.valid) {
+      return res.status(400).json({
+        message: transitionCheck.reason || `Cannot transition donation from '${previousStatus}' to '${status}'`
+      });
+    }
+
     donation.status = status;
 
     // Set timestamps based on status
     if (status === 'delivered' && !donation.deliveredAt) {
       donation.deliveredAt = new Date();
     }
+    if (status === 'picked_up' && !donation.pickedUpAt) {
+      donation.pickedUpAt = new Date();
+    }
+
+    // Case 7: Append audit trail with admin name
+    donation.timeline.push({
+      status,
+      description: `Status changed from "${previousStatus}" to "${status}" by Admin (${req.user.name || 'System Admin'})`,
+      time: new Date()
+    });
 
     // Update volunteer profile if transitioning to delivered
     if (status === 'delivered' && donation.assignedVolunteer) {
@@ -489,12 +537,16 @@ const getAllComplaints = async (req, res) => {
 
     const query = {};
 
-    if (req.query.status && req.query.status !== 'all') {
-      query.status = req.query.status;
+    const validStatuses = ['open', 'investigating', 'resolved', 'dismissed'];
+    const reqStatus = safeString(req.query.status).trim();
+    if (reqStatus && validStatuses.includes(reqStatus)) {
+      query.status = reqStatus;
     }
 
-    if (req.query.type) {
-      query.type = req.query.type;
+    const validTypes = ['donor', 'ngo', 'volunteer', 'food_quality', 'late_delivery', 'fraud', 'other'];
+    const reqType = safeString(req.query.type).trim();
+    if (reqType && validTypes.includes(reqType)) {
+      query.type = reqType;
     }
 
     const [complaints, total] = await Promise.all([

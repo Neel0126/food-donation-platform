@@ -67,6 +67,7 @@ async function runDirectAssignTest() {
     const ngoData = await ngoRes.json();
     const ngoToken = ngoData.token;
     await NgoProfile.updateOne({ user: ngoData.user.id }, { verificationStatus: 'approved' });
+    await VolunteerProfile.updateOne({ user: volId }, { associatedNgo: ngoData.user.id });
 
     // Donor creates donation
     const donCreate = await fetch(`${baseUrl}/api/donations`, {

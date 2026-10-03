@@ -1,53 +1,54 @@
 @import "tailwindcss";
 
-/* ===== ShareBite Food Donation Platform — Earthy Fresh Theme ===== */
+/* ===== ShareBite Food Donation Platform — Design System ===== */
 @theme {
   --font-sans: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-body: "Work Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  /* Forest Green Primary Palette */
-  --color-primary-50: #f2f7f0;
-  --color-primary-100: #e2efe0;
-  --color-primary-200: #c5dfc1;
-  --color-primary-300: #9ec798;
-  --color-primary-400: #6fa968;
-  --color-primary-500: #3c7a31;
-  --color-primary-600: #2d5a27; /* Main Brand Forest Green */
-  --color-primary-700: #244820;
-  --color-primary-800: #1b3718;
-  --color-primary-900: #132711;
+  /* Deep Green Primary Palette */
+  --color-primary-50: #f2f7f1;
+  --color-primary-100: #ddeedb; /* Secondary Green */
+  --color-primary-200: #bfdec0;
+  --color-primary-300: #98c89a;
+  --color-primary-400: #6ba86f;
+  --color-primary-500: #3f8445;
+  --color-primary-600: #245c2a; /* Main Deep Green */
+  --color-primary-700: #1c4721;
+  --color-primary-800: #153619;
+  --color-primary-900: #172117; /* Dark Green / Black Text */
 
-  /* Sage Green Secondary Palette */
-  --color-sage-50: #f6f9f5;
-  --color-sage-100: #ebf3ea;
-  --color-sage-200: #d6e7d4;
-  --color-sage-300: #b5d5b2;
-  --color-sage-400: #8ebf8a;
-  --color-sage-500: #6ea76a;
-  --color-sage-600: #548b50;
-  --color-sage-700: #426e3e;
+  /* Secondary Green */
+  --color-secondary-green: #ddeedb;
+  --color-dark-green-text: #172117;
 
-  /* Warm Amber / Terracotta Accent */
-  --color-accent-50: #fff9f2;
-  --color-accent-100: #fef0df;
-  --color-accent-200: #fce0bc;
-  --color-accent-300: #f8c88c;
-  --color-accent-400: #f2a758;
-  --color-accent-500: #d48b3a; /* Warm harvest amber */
-  --color-accent-600: #b86f26;
-  --color-accent-700: #92531e;
+  /* Sage & Warm Naturals */
+  --color-sage-50: #f7f9f6;
+  --color-sage-100: #edf3ec;
+  --color-sage-200: #dde8dc;
+  --color-sage-300: #bed3bc;
 
-  /* Stone Neutral Backgrounds & Borders */
-  --color-stone-bg: #f5f0e8;
-  --color-stone-card: #fbf9f5;
-  --color-stone-border: #e6ded3;
+  /* Harvest Amber Accent */
+  --color-accent-50: #fffbf2;
+  --color-accent-100: #fef3d6;
+  --color-accent-200: #fde5a8;
+  --color-accent-300: #f9ce6d;
+  --color-accent-400: #f3b134;
+  --color-accent-500: #d99118;
+  --color-accent-600: #b8710e;
+
+  /* Warm Off-White Background & Surfaces */
+  --color-warm-bg: #f8f6f0;
+  --color-warm-surface: #ffffff;
+  --color-warm-subtle: #f3efe6;
+  --color-warm-border: #e8e2d5;
+  --color-stone-border: #e8e2d5;
 }
 
 /* ===== Keyframe Animations ===== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(18px);
   }
   to {
     opacity: 1;
@@ -60,10 +61,10 @@
   to { opacity: 1; }
 }
 
-@keyframes slideInLeft {
+@keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateX(-32px);
+    transform: translateX(24px);
   }
   to {
     opacity: 1;
@@ -71,10 +72,10 @@
   }
 }
 
-@keyframes slideInRight {
+@keyframes slideInLeft {
   from {
     opacity: 0;
-    transform: translateX(32px);
+    transform: translateX(-24px);
   }
   to {
     opacity: 1;
@@ -85,7 +86,7 @@
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
@@ -95,17 +96,7 @@
 
 @keyframes pulse-soft {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes float-gentle {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-5px) rotate(2deg); }
+  50% { opacity: 0.65; }
 }
 
 @keyframes shimmer {
@@ -113,74 +104,88 @@
   100% { background-position: 200% 0; }
 }
 
-/* ===== Animation Utilities ===== */
+@keyframes floatGentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Animation utility classes */
 .animate-fade-in-up {
-  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.5s ease both;
-}
-
-.animate-slide-in-left {
-  animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeIn 0.35s ease both;
 }
 
 .animate-slide-in-right {
-  animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-scale-in {
-  animation: scaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.animate-float {
-  animation: float 3.5s ease-in-out infinite;
-}
-
-.animate-float-gentle {
-  animation: float-gentle 4s ease-in-out infinite;
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-pulse-soft {
   animation: pulse-soft 2s ease-in-out infinite;
 }
 
-/* Stagger delays */
-.animate-stagger-1 { animation-delay: 0.05s; }
-.animate-stagger-2 { animation-delay: 0.1s; }
-.animate-stagger-3 { animation-delay: 0.15s; }
-.animate-stagger-4 { animation-delay: 0.2s; }
-.animate-stagger-5 { animation-delay: 0.25s; }
-.animate-stagger-6 { animation-delay: 0.3s; }
+.animate-float {
+  animation: floatGentle 3s ease-in-out infinite;
+}
 
-/* Respect reduced motion */
+/* Stagger delays */
+.animate-stagger-1 { animation-delay: 0.04s; }
+.animate-stagger-2 { animation-delay: 0.08s; }
+.animate-stagger-3 { animation-delay: 0.12s; }
+.animate-stagger-4 { animation-delay: 0.16s; }
+.animate-stagger-5 { animation-delay: 0.20s; }
+.animate-stagger-6 { animation-delay: 0.24s; }
+
+/* Skeleton loader */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(232, 226, 213, 0.4) 0%,
+    rgba(232, 226, 213, 0.8) 50%,
+    rgba(232, 226, 213, 0.4) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite ease-in-out;
+  border-radius: 0.75rem;
+}
+
+/* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in-up,
   .animate-fade-in,
-  .animate-slide-in-left,
   .animate-slide-in-right,
+  .animate-slide-in-left,
   .animate-scale-in,
+  .animate-pulse-soft,
   .animate-float,
-  .animate-float-gentle,
-  .animate-pulse-soft {
+  .skeleton-shimmer {
     animation: none !important;
   }
 }
 
-/* ===== Base Resets ===== */
+/* ===== Base Styles ===== */
 body {
   margin: 0;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #1a261a;
-  background-color: #f5f0e8;
+  color: #172117;
+  background-color: #f8f6f0;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
-  color: #162a14;
+  color: inherit;
 }
 
 #root {
@@ -189,98 +194,145 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
 }
 
-/* ===== Earthy Fresh UI Utilities ===== */
+/* ===== Reusable Component System Classes ===== */
 
-/* Card base */
-.card {
+/* Surfaces */
+.surface-card {
   background-color: #ffffff;
-  border: 1px solid #e7ded4;
+  border: 1px solid #e8e2d5;
   border-radius: 1.25rem;
-  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
-}
-.card:hover {
-  box-shadow: 0 12px 32px rgba(45, 90, 39, 0.08);
-  border-color: #c9dec6;
-  transform: translateY(-2px);
+  box-shadow: 0 1px 3px rgba(23, 33, 23, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-/* Primary Button - Forest Green */
+.surface-card:hover {
+  border-color: #bfdec0;
+  box-shadow: 0 8px 24px rgba(36, 92, 42, 0.07);
+}
+
+.surface-card-interactive {
+  background-color: #ffffff;
+  border: 1px solid #e8e2d5;
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 3px rgba(23, 33, 23, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.surface-card-interactive:hover {
+  border-color: #245c2a;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(36, 92, 42, 0.09);
+}
+
+/* Primary Button — Deep Green */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.65rem 1.6rem;
+  padding: 0.625rem 1.35rem;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   border-radius: 9999px;
   color: #ffffff;
-  background-color: #2d5a27;
-  border: 1px solid #244820;
+  background-color: #245c2a;
+  border: 1px solid #1c4721;
   cursor: pointer;
-  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  transition: all 0.18s ease;
   font-family: var(--font-sans);
-  box-shadow: 0 4px 14px rgba(45, 90, 39, 0.22);
+  box-shadow: 0 2px 8px rgba(36, 92, 42, 0.22);
 }
+
 .btn-primary:hover {
-  background-color: #23491f;
-  box-shadow: 0 6px 18px rgba(45, 90, 39, 0.32);
+  background-color: #1c4721;
+  box-shadow: 0 4px 14px rgba(36, 92, 42, 0.32);
   transform: translateY(-1px);
 }
+
 .btn-primary:active {
   transform: translateY(0);
 }
+
 .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-/* Secondary Button - Sage Outline */
+/* Secondary Button — Warm / Soft Sage */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.65rem 1.6rem;
+  padding: 0.625rem 1.35rem;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   border-radius: 9999px;
-  color: #244820;
+  color: #245c2a;
   background-color: #ffffff;
-  border: 1.5px solid #2d5a27;
+  border: 1.5px solid #ddeedb;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, transform 0.2s, color 0.2s;
+  transition: all 0.18s ease;
   font-family: var(--font-sans);
 }
+
 .btn-secondary:hover {
-  background-color: #f2f7f0;
-  border-color: #23491f;
+  background-color: #ddeedb;
+  border-color: #bfdec0;
+  color: #172117;
   transform: translateY(-1px);
 }
 
-/* Accent Button - Warm Amber */
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Ghost / Soft Button */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.75rem;
+  color: #245c2a;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: var(--font-sans);
+}
+
+.btn-ghost:hover {
+  background-color: #ddeedb;
+}
+
+/* Accent Button */
 .btn-accent {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.65rem 1.6rem;
+  padding: 0.625rem 1.35rem;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   border-radius: 9999px;
   color: #ffffff;
-  background-color: #d48b3a;
-  border: 1px solid #b86f26;
+  background-color: #d99118;
+  border: 1px solid #b8710e;
   cursor: pointer;
-  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  transition: all 0.18s ease;
   font-family: var(--font-sans);
-  box-shadow: 0 4px 14px rgba(212, 139, 58, 0.25);
+  box-shadow: 0 2px 8px rgba(217, 145, 24, 0.24);
 }
+
 .btn-accent:hover {
-  background-color: #b86f26;
-  box-shadow: 0 6px 18px rgba(212, 139, 58, 0.35);
+  background-color: #b8710e;
   transform: translateY(-1px);
 }
 
@@ -290,77 +342,105 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.5rem;
+  padding: 0.625rem 1.35rem;
   font-weight: 600;
   font-size: 0.875rem;
   border-radius: 9999px;
-  color: #fff;
+  color: #ffffff;
   background-color: #dc2626;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.2s;
+  transition: all 0.18s ease;
   font-family: var(--font-sans);
 }
+
 .btn-danger:hover {
   background-color: #b91c1c;
   transform: translateY(-1px);
 }
 
-/* Form Input with Warm Stone & Forest Focus */
+/* Form Inputs */
 .input-field {
   width: 100%;
-  padding: 0.65rem 0.875rem;
+  padding: 0.65rem 0.9rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  border: 1.5px solid #e5ddd2;
-  border-radius: 0.75rem;
+  border: 1.5px solid #e8e2d5;
+  border-radius: 0.875rem;
   background-color: #ffffff;
-  color: #1a261a;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  color: #172117;
+  transition: border-color 0.18s, box-shadow 0.18s;
   outline: none;
   box-sizing: border-box;
   font-family: var(--font-body);
 }
+
 .input-field::placeholder {
-  color: #9aa597;
+  color: #8c9889;
 }
+
 .input-field:focus {
-  border-color: #2d5a27;
-  box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.15);
+  border-color: #245c2a;
+  box-shadow: 0 0 0 3px rgba(36, 92, 42, 0.12);
 }
+
 .input-field.input-error {
   border-color: #ef4444;
 }
+
 .input-field.input-error:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
-/* Pill Stat Cards */
-.stat-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1.5rem;
-  border-radius: 9999px;
-  font-family: var(--font-sans);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.stat-pill:hover {
-  transform: translateY(-2px);
+/* Status Badges */
+.badge-status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
 }
 
-/* Scrollbar Styling */
+.badge-status-accepted,
+.badge-status-scheduled,
+.badge-status-assigned {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.badge-status-completed,
+.badge-status-delivered {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.badge-status-picked_up {
+  background-color: #f3e8ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
+}
+
+.badge-status-cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #f5f0e8;
+  background: #f8f6f0;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #c5dfc1;
+  background: #bfdec0;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ec798;
+  background: #98c89a;
 }

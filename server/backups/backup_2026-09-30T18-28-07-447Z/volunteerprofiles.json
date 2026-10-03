@@ -1,0 +1,1068 @@
+[
+  {
+    "_id": "6ab945093e7ce6bb4b011d3a",
+    "user": "6ab945093e7ce6bb4b011d39",
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 1,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 1,
+    "ratings": [
+      {
+        "ratedBy": "6ab942993e7ce6bb4b011d1f",
+        "role": "ngo",
+        "donation": "6aa9094ffddb023d6b99ae19",
+        "score": 5,
+        "feedback": "",
+        "createdAt": "2026-09-27T17:11:38.003Z",
+        "_id": "6ab94e4a477e8e89b74f3b91"
+      }
+    ],
+    "createdAt": "2026-09-27T16:32:09.854Z",
+    "updatedAt": "2026-09-29T17:32:02.460Z",
+    "__v": 1,
+    "associatedNgo": "6ab942993e7ce6bb4b011d1f"
+  },
+  {
+    "_id": "6aba2f8ece91d9263a31221f",
+    "user": "6aba2f8ece91d9263a31221e",
+    "vehicleType": "car",
+    "vehicleNumber": "GJ07ER6646",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 1,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 1,
+    "ratings": [
+      {
+        "ratedBy": "6aba3101ce91d9263a312220",
+        "role": "ngo",
+        "donation": "6aba322ece91d9263a31222a",
+        "score": 5,
+        "feedback": "good",
+        "createdAt": "2026-09-28T09:34:01.197Z",
+        "_id": "6aba3489ce91d9263a312324"
+      }
+    ],
+    "createdAt": "2026-09-28T09:12:46.296Z",
+    "updatedAt": "2026-09-29T17:32:02.065Z",
+    "__v": 1,
+    "associatedNgo": "6aba3101ce91d9263a312220"
+  },
+  {
+    "_id": "6a93c172d1b6c2ea44ec1bf8",
+    "user": "6a7ff590713d885395682bd9",
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "busy",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 1,
+    "activeDeliveries": 0,
+    "rating": 4,
+    "createdAt": "2026-08-30T05:36:50.093Z",
+    "updatedAt": "2026-09-29T17:32:02.233Z",
+    "__v": 1,
+    "ratingCount": 1,
+    "ratings": [
+      {
+        "ratedBy": "6a93bd1ace63351970ed540b",
+        "role": "ngo",
+        "donation": "6a7a21ee8968ffef66a0c091",
+        "score": 4,
+        "feedback": "Delivery on time",
+        "createdAt": "2026-08-30T05:51:56.593Z",
+        "_id": "6a93c4fc65238ec521177b05"
+      }
+    ],
+    "associatedNgo": "6a93bd1ace63351970ed540b"
+  },
+  {
+    "_id": "6abbf612b39ae356a5a4ba94",
+    "user": "6abbf612b39ae356a5a4ba93",
+    "associatedNgo": "6a64b32858b9609e4d9ddf1f",
+    "vehicleType": "bike",
+    "vehicleNumber": "GJ-07-AB-1234",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-29T17:32:02.839Z",
+    "updatedAt": "2026-09-29T17:32:02.839Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd45386cfa9c4d44c187fe",
+    "user": "6abd45376cfa9c4d44c187fd",
+    "associatedNgo": null,
+    "vehicleType": "car",
+    "vehicleNumber": "MH-01-XY-9999",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "Jane Doe",
+      "phone": "9998887776",
+      "relationship": "Sister"
+    },
+    "address": {
+      "street": "123 Volunteer St, City",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 1,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:22:00.303Z",
+    "updatedAt": "2026-09-30T17:22:07.986Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4590329ff737abc29315",
+    "user": "6abd4590329ff737abc29314",
+    "associatedNgo": null,
+    "vehicleType": "car",
+    "vehicleNumber": "MH-01-XY-9999",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "Jane Doe",
+      "phone": "9998887776",
+      "relationship": "Sister"
+    },
+    "address": {
+      "street": "123 Volunteer St, City",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 1,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:23:28.371Z",
+    "updatedAt": "2026-09-30T17:23:35.403Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd45bac08cc55ef07f3028",
+    "user": "6abd45bac08cc55ef07f3027",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:24:10.663Z",
+    "updatedAt": "2026-09-30T17:24:10.663Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd45f3ab1884512d5c96bd",
+    "user": "6abd45f2ab1884512d5c96bc",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 1,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:25:07.171Z",
+    "updatedAt": "2026-09-30T17:43:38.186Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485bad99968fda6d7b2e",
+    "user": "6abd485aad99968fda6d7b2d",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:35:23.052Z",
+    "updatedAt": "2026-09-30T17:35:23.052Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485bad99968fda6d7b30",
+    "user": "6abd485bad99968fda6d7b2f",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:35:23.287Z",
+    "updatedAt": "2026-09-30T17:35:23.287Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485bad99968fda6d7b32",
+    "user": "6abd485bad99968fda6d7b31",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:35:23.494Z",
+    "updatedAt": "2026-09-30T17:35:23.494Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485bad99968fda6d7b34",
+    "user": "6abd485bad99968fda6d7b33",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:35:23.704Z",
+    "updatedAt": "2026-09-30T17:35:23.704Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485cad99968fda6d7b36",
+    "user": "6abd485bad99968fda6d7b35",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:35:24.298Z",
+    "updatedAt": "2026-09-30T17:35:24.298Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485cad99968fda6d7b38",
+    "user": "6abd485cad99968fda6d7b37",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:35:24.535Z",
+    "updatedAt": "2026-09-30T17:35:24.535Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485cad99968fda6d7b3a",
+    "user": "6abd485cad99968fda6d7b39",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:35:24.760Z",
+    "updatedAt": "2026-09-30T17:35:24.760Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485cad99968fda6d7b3c",
+    "user": "6abd485cad99968fda6d7b3b",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:35:24.982Z",
+    "updatedAt": "2026-09-30T17:35:24.982Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485dad99968fda6d7b3e",
+    "user": "6abd485dad99968fda6d7b3d",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:35:25.196Z",
+    "updatedAt": "2026-09-30T17:35:25.196Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd485dad99968fda6d7b40",
+    "user": "6abd485dad99968fda6d7b3f",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:35:25.402Z",
+    "updatedAt": "2026-09-30T17:35:25.402Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4890cf7e0cfe93f7b38c",
+    "user": "6abd488fcf7e0cfe93f7b38b",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:36:16.018Z",
+    "updatedAt": "2026-09-30T17:36:16.018Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4890cf7e0cfe93f7b38e",
+    "user": "6abd4890cf7e0cfe93f7b38d",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:36:16.241Z",
+    "updatedAt": "2026-09-30T17:36:16.241Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4890cf7e0cfe93f7b390",
+    "user": "6abd4890cf7e0cfe93f7b38f",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:36:16.466Z",
+    "updatedAt": "2026-09-30T17:36:16.466Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4890cf7e0cfe93f7b392",
+    "user": "6abd4890cf7e0cfe93f7b391",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 1,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:36:16.688Z",
+    "updatedAt": "2026-09-30T17:36:21.592Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4890cf7e0cfe93f7b394",
+    "user": "6abd4890cf7e0cfe93f7b393",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:36:16.942Z",
+    "updatedAt": "2026-09-30T17:36:16.942Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4891cf7e0cfe93f7b396",
+    "user": "6abd4891cf7e0cfe93f7b395",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:36:17.166Z",
+    "updatedAt": "2026-09-30T17:36:17.166Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4891cf7e0cfe93f7b398",
+    "user": "6abd4891cf7e0cfe93f7b397",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:36:17.386Z",
+    "updatedAt": "2026-09-30T17:36:17.386Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4891cf7e0cfe93f7b39a",
+    "user": "6abd4891cf7e0cfe93f7b399",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:36:17.602Z",
+    "updatedAt": "2026-09-30T17:36:17.602Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4891cf7e0cfe93f7b39c",
+    "user": "6abd4891cf7e0cfe93f7b39b",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:36:17.800Z",
+    "updatedAt": "2026-09-30T17:36:17.800Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4892cf7e0cfe93f7b39e",
+    "user": "6abd4891cf7e0cfe93f7b39d",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:36:18.014Z",
+    "updatedAt": "2026-09-30T17:36:18.014Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd48c486d9e8205b2b99d4",
+    "user": "6abd48c486d9e8205b2b99d3",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 1,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:37:08.238Z",
+    "updatedAt": "2026-09-30T17:37:11.920Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd49a5b307ec76182f5a5b",
+    "user": "6abd49a5b307ec76182f5a5a",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T17:40:53.419Z",
+    "updatedAt": "2026-09-30T17:40:58.757Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4ea8f2b148754574e325",
+    "user": "6abd4ea8f2b148754574e324",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 22,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T18:02:16.778Z",
+    "updatedAt": "2026-09-30T18:02:51.228Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4ef5102a7e339dac6e61",
+    "user": "6abd4ef5102a7e339dac6e60",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 14,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T18:03:33.945Z",
+    "updatedAt": "2026-09-30T18:04:06.836Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd4f71da946792fe3425e0",
+    "user": "6abd4f71da946792fe3425df",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T18:05:37.290Z",
+    "updatedAt": "2026-09-30T18:07:32.618Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd533ed37f300b2696041f",
+    "user": "6abd533ed37f300b2696041d",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T18:21:50.904Z",
+    "updatedAt": "2026-09-30T18:21:50.904Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd53df155010e9a5928368",
+    "user": "6abd53de155010e9a5928366",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T18:24:31.078Z",
+    "updatedAt": "2026-09-30T18:24:31.078Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd546b6b35d1c9d476662c",
+    "user": "6abd546a6b35d1c9d476662a",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "busy",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 1,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T18:26:51.062Z",
+    "updatedAt": "2026-09-30T18:26:52.504Z",
+    "__v": 0
+  },
+  {
+    "_id": "6abd546b6b35d1c9d476662d",
+    "user": "6abd546a6b35d1c9d476662b",
+    "associatedNgo": null,
+    "vehicleType": "bike",
+    "vehicleNumber": "",
+    "availabilityStatus": "available",
+    "emergencyContact": {
+      "name": "",
+      "phone": "",
+      "relationship": ""
+    },
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "country": "India"
+    },
+    "completedDeliveries": 0,
+    "activeDeliveries": 0,
+    "rating": 5,
+    "ratingCount": 0,
+    "ratings": [],
+    "createdAt": "2026-09-30T18:26:51.133Z",
+    "updatedAt": "2026-09-30T18:26:51.133Z",
+    "__v": 0
+  }
+]

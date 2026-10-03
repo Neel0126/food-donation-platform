@@ -5,6 +5,20 @@
 
 const BASE_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
+/** Returns the correct role-specific dashboard path with optional donation anchor */
+const dashboardUrl = (role, donationId) => {
+  const paths = {
+    donor: '/donor/dashboard',
+    ngo: '/ngo/dashboard',
+    volunteer: '/volunteer/dashboard',
+    admin: '/admin/dashboard',
+  };
+  const base = paths[role] || '/dashboard';
+  return donationId
+    ? `${BASE_URL}${base}?tab=donations&highlight=${donationId}`
+    : `${BASE_URL}${base}`;
+};
+
 const brandHeader = `
   <div style="background:linear-gradient(135deg,#5c7a3e,#4a6331);padding:28px 32px;border-radius:12px 12px 0 0;">
     <span style="font-size:28px;">🌱</span>
@@ -22,7 +36,7 @@ const brandFooter = `
 /**
  * Donation accepted by NGO → notify donor
  */
-const donationAccepted = ({ donorName, foodType, ngoName }) => ({
+const donationAccepted = ({ donorName, foodType, ngoName, donationId }) => ({
   subject: '✅ Your donation has been accepted! — ShareBite',
   html: `
     <div style="max-width:560px;margin:0 auto;font-family:'Segoe UI',sans-serif;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
@@ -38,7 +52,7 @@ const donationAccepted = ({ donorName, foodType, ngoName }) => ({
             <li>We'll notify you when it's been delivered</li>
           </ul>
         </div>
-        <a href="${BASE_URL}/dashboard" style="display:inline-block;background:#5c7a3e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;margin-top:4px;">View Donation Status →</a>
+        <a href="${dashboardUrl('donor', donationId)}" style="display:inline-block;background:#5c7a3e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;margin-top:4px;">View Donation Status →</a>
       </div>
       ${brandFooter}
     </div>
@@ -49,7 +63,7 @@ const donationAccepted = ({ donorName, foodType, ngoName }) => ({
 /**
  * Volunteer assigned → notify donor & volunteer
  */
-const volunteerAssigned = ({ recipientName, foodType, volunteerName, role }) => ({
+const volunteerAssigned = ({ recipientName, foodType, volunteerName, role, donationId }) => ({
   subject: `🚗 ${role === 'volunteer' ? 'New delivery task assigned!' : 'A volunteer has been assigned to your donation!'} — ShareBite`,
   html: `
     <div style="max-width:560px;margin:0 auto;font-family:'Segoe UI',sans-serif;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
@@ -62,7 +76,7 @@ const volunteerAssigned = ({ recipientName, foodType, volunteerName, role }) => 
           <h2 style="margin:0 0 8px;color:#1a2e0a;font-size:20px;">Volunteer Assigned, ${recipientName}! 🙌</h2>
           <p style="color:#555;line-height:1.6;"><strong>${volunteerName}</strong> has been assigned to pick up your <strong style="color:#5c7a3e;">${foodType}</strong> donation. Please be ready to share your Pickup OTP when they arrive.</p>
         `}
-        <a href="${BASE_URL}/dashboard" style="display:inline-block;background:#5c7a3e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;margin-top:12px;">View Details →</a>
+        <a href="${dashboardUrl(role, donationId)}" style="display:inline-block;background:#5c7a3e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;margin-top:12px;">View Details →</a>
       </div>
       ${brandFooter}
     </div>
@@ -75,7 +89,7 @@ const volunteerAssigned = ({ recipientName, foodType, volunteerName, role }) => 
 /**
  * Donation picked up → notify donor
  */
-const donationPickedUp = ({ donorName, foodType, volunteerName }) => ({
+const donationPickedUp = ({ donorName, foodType, volunteerName, donationId }) => ({
   subject: '📦 Your donation has been picked up! — ShareBite',
   html: `
     <div style="max-width:560px;margin:0 auto;font-family:'Segoe UI',sans-serif;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
@@ -87,7 +101,7 @@ const donationPickedUp = ({ donorName, foodType, volunteerName }) => ({
           <p style="margin:0;color:#4a3780;font-weight:600;">🚗 In Transit</p>
           <p style="margin:6px 0 0;color:#555;">Your food is on its way to people who need it most. Thank you for making a difference!</p>
         </div>
-        <a href="${BASE_URL}/dashboard" style="display:inline-block;background:#5c7a3e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">Track Status →</a>
+        <a href="${dashboardUrl('donor', donationId)}" style="display:inline-block;background:#5c7a3e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">Track Status →</a>
       </div>
       ${brandFooter}
     </div>
@@ -98,7 +112,7 @@ const donationPickedUp = ({ donorName, foodType, volunteerName }) => ({
 /**
  * Donation delivered → notify donor
  */
-const donationDelivered = ({ donorName, foodType, ngoName }) => ({
+const donationDelivered = ({ donorName, foodType, ngoName, donationId }) => ({
   subject: '🎉 Donation delivered successfully! — ShareBite',
   html: `
     <div style="max-width:560px;margin:0 auto;font-family:'Segoe UI',sans-serif;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
@@ -110,7 +124,7 @@ const donationDelivered = ({ donorName, foodType, ngoName }) => ({
           <p style="margin:0;color:#166534;font-weight:600;">✅ Delivered!</p>
           <p style="margin:6px 0 0;color:#555;">Your generosity has helped reduce food waste and feed those in need. Thank you for being a ShareBite hero!</p>
         </div>
-        <a href="${BASE_URL}/dashboard" style="display:inline-block;background:#5c7a3e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">Donate Again →</a>
+        <a href="${dashboardUrl('donor', donationId)}" style="display:inline-block;background:#5c7a3e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">Donate Again →</a>
       </div>
       ${brandFooter}
     </div>
@@ -124,3 +138,4 @@ module.exports = {
   donationPickedUp,
   donationDelivered,
 };
+

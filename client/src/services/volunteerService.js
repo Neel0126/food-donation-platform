@@ -83,3 +83,9 @@ export const completeTask = async (id, data = {}) => {
   const response = await api.put(`/volunteers/tasks/${id}/complete`, data);
   return response.data;
 };
+
+// Update volunteer live location coordinates
+export const updateTaskLocation = async (id, locationData) => {
+  const response = await api.put(`/volunteers/tasks/${id}/location`, locationData);
+  return response.data;
+};

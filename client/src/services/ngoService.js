@@ -59,3 +59,47 @@ export const rateVolunteer = async (donationId, score, feedback = '') => {
   const response = await api.post(`/ngos/donations/${donationId}/rate-volunteer`, { score, feedback });
   return response.data;
 };
+
+// Regenerate / update delivery OTP for an accepted donation
+export const regenerateDeliveryOtp = async (id) => {
+  const response = await api.put(`/ngos/donations/${id}/regenerate-delivery-otp`);
+  return response.data;
+};
+
+// Get directory of verified NGOs for donors & community
+export const getVerifiedNgos = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const url = query ? `/ngos/directory?${query}` : '/ngos/directory';
+  const response = await api.get(url);
+  return response.data;
+};
+
+// Get current logged-in NGO's full profile
+export const getMyNgoProfile = async () => {
+  const response = await api.get('/ngos/profile');
+  return response.data;
+};
+
+// Update current logged-in NGO's profile (supports multipart FormData for coverImage and logo)
+export const updateNgoProfile = async (formData) => {
+  const response = await api.put('/ngos/profile', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+// Get all volunteers associated with this NGO
+export const getMyVolunteers = async () => {
+  const response = await api.get('/ngos/volunteers');
+  return response.data;
+};
+
+// Add / onboard a new volunteer to this NGO team
+export const addVolunteerToNgo = async (volunteerData) => {
+  const response = await api.post('/ngos/volunteers', volunteerData);
+  return response.data;
+};
+
+

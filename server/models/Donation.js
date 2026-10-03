@@ -14,6 +14,10 @@ const donationSchema = new mongoose.Schema({
     type: String, // e.g., '50 meals', '20 kg'
     required: true
   },
+  estimatedMeals: {
+    type: Number,
+    default: 0
+  },
   description: {
     type: String
   },
@@ -50,8 +54,14 @@ const donationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'accepted', 'assigned', 'picked_up', 'delivered', 'cancelled'],
+    enum: ['pending', 'accepted', 'assigned', 'picked_up', 'delivered', 'cancelled', 'expired'],
     default: 'pending'
+  },
+  pickupWindow: {
+    type: String
+  },
+  expiresAt: {
+    type: Date
   },
   acceptedBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -60,6 +70,14 @@ const donationSchema = new mongoose.Schema({
   assignedVolunteer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User' // Volunteer assigned to pickup and delivery
+  },
+  volunteerLocation: {
+    lat: { type: Number, default: 0 },
+    lng: { type: Number, default: 0 },
+    heading: { type: Number, default: 0 },
+    speed: { type: Number, default: 0 },
+    address: { type: String, default: '' },
+    updatedAt: { type: Date, default: Date.now }
   },
   volunteerStatus: {
     type: String,
@@ -80,9 +98,17 @@ const donationSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  pickupOtpAttempts: {
+    type: Number,
+    default: 0
+  },
   deliveryOtpVerified: {
     type: Boolean,
     default: false
+  },
+  deliveryOtpAttempts: {
+    type: Number,
+    default: 0
   },
   pickedUpAt: {
     type: Date
@@ -117,8 +143,12 @@ const donationSchema = new mongoose.Schema({
   ]
 }, { timestamps: true });
 
-// Create a 2dsphere index for the location field
+// Indexes for high-throughput queries
 donationSchema.index({ location: '2dsphere' });
+donationSchema.index({ status: 1, expiresAt: 1 });
+donationSchema.index({ acceptedBy: 1, status: 1 });
+donationSchema.index({ donor: 1, createdAt: -1 });
+donationSchema.index({ assignedVolunteer: 1, status: 1 });
 
 const Donation = mongoose.model('Donation', donationSchema);
 module.exports = Donation;
