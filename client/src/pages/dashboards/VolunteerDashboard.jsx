@@ -886,8 +886,11 @@ const VolunteerDashboard = () => {
                 const ngoName = task.ngoOrganization?.organizationName || task.acceptedBy?.name || 'Dhruv Patel';
                 const pickupAddress = [task.pickupLocation?.street, task.pickupLocation?.city].filter(Boolean).join(', ') || 'Donor Location';
                 const dropoffAddress = [task.dropoffLocation?.street, task.dropoffLocation?.city].filter(Boolean).join(', ') || 'NGO Relief Center';
-                const ratingScore = task.volunteerRating?.score || 5;
-                const feedbackText = task.volunteerRating?.feedback || (task.deliveryNotes && task.deliveryNotes.trim() !== '' ? task.deliveryNotes : null);
+                const hasRating = Boolean(task.volunteerRating?.score || task.volunteerRated);
+                const ratingScore = task.volunteerRating?.score ?? 5;
+                const feedbackText = (task.volunteerRating?.feedback && task.volunteerRating.feedback.trim() !== '')
+                  ? task.volunteerRating.feedback.trim()
+                  : (task.deliveryNotes && task.deliveryNotes.trim() !== '' ? task.deliveryNotes.trim() : null);
 
                 return (
                   <div key={task._id} className="surface-card p-5.5 border-emerald-100 flex flex-col justify-between hover:border-emerald-300 transition-all shadow-2xs">
@@ -941,11 +944,11 @@ const VolunteerDashboard = () => {
                       </div>
 
                       {/* Review & Feedback Presentation */}
-                      {feedbackText && (
+                      {(hasRating || feedbackText) && (
                         <div className="my-3 p-3 bg-amber-50/70 rounded-2xl border border-amber-200/90 text-xs text-amber-950">
                           <div className="flex items-center justify-between mb-1.5">
                             <div className="flex items-center gap-1 text-amber-500 font-bold">
-                              {'★'.repeat(ratingScore)}
+                              {'★'.repeat(Math.max(1, Math.min(5, Math.round(ratingScore))))}
                               <span className="text-xs font-extrabold text-amber-900 ml-1">
                                 {Number(ratingScore).toFixed(1)}
                               </span>
@@ -954,9 +957,15 @@ const VolunteerDashboard = () => {
                               Feedback
                             </span>
                           </div>
-                          <p className="italic font-medium text-gray-800 text-xs leading-relaxed">
-                            "{feedbackText}"
-                          </p>
+                          {feedbackText ? (
+                            <p className="italic font-medium text-gray-800 text-xs leading-relaxed">
+                              "{feedbackText}"
+                            </p>
+                          ) : (
+                            <p className="italic font-normal text-gray-500 text-xs leading-relaxed">
+                              Performance rated
+                            </p>
+                          )}
                           <span className="text-[10px] text-gray-500 font-semibold block mt-1">
                             — Donor
                           </span>
