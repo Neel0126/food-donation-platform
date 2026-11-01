@@ -3,10 +3,16 @@
  * Run: node scripts/migrateToAtlas.js
  */
 
+require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const mongoose = require('mongoose');
 
-const LOCAL_URI = 'mongodb://127.0.0.1:27017/food-donation';
-const ATLAS_URI = 'mongodb+srv://panchalneel645_db_user:neel2006@cluster0.lpm2ujd.mongodb.net/food-donation?retryWrites=true&w=majority&appName=Cluster0';
+const LOCAL_URI = process.env.LOCAL_MONGO_URI || 'mongodb://127.0.0.1:27017/food-donation';
+const ATLAS_URI = process.env.MONGO_URI || process.env.ATLAS_URI;
+
+if (!ATLAS_URI) {
+  console.error('❌ Error: MONGO_URI or ATLAS_URI must be defined in your .env file');
+  process.exit(1);
+}
 
 const COLLECTIONS = [
   'users',
