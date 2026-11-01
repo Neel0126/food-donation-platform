@@ -1,0 +1,84 @@
+name: CI — Test & Lint
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [develop]
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1: Backend lint + security audit
+  # ─────────────────────────────────────────────
+  backend-check:
+    name: Backend — Audit & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Security audit (npm audit)
+        working-directory: server
+        run: npm audit --audit-level=high
+        continue-on-error: true  # Warn but don't block on audit issues
+
+      - name: Run backend tests
+        working-directory: server
+        env:
+          NODE_ENV: test
+          PORT: 5001
+          JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
+          MONGO_URI: ${{ secrets.MONGO_URI_TEST }}
+        run: npm test
+        continue-on-error: true  # Remove once tests are added with Jest
+
+  # ─────────────────────────────────────────────
+  # JOB 2: Frontend lint + build check
+  # ─────────────────────────────────────────────
+  frontend-check:
+    name: Frontend — Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Security audit (npm audit)
+        working-directory: client
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Lint
+        working-directory: client
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Build (verify it compiles)
+        working-directory: client
+        env:
+          VITE_API_URL: http://localhost:5000/api
+        run: npm run build
+
