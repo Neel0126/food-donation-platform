@@ -101,6 +101,9 @@ app.use((err, req, res, next) => {
   if (err.type === 'entity.too.large') {
     return res.status(413).json({ message: 'Payload too large. Maximum allowed size is 1MB.' });
   }
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({ message: 'Uploaded file is too large. Maximum file upload limit exceeded.' });
+  }
   if (err.name === 'CastError' && err.kind === 'ObjectId') {
     return res.status(400).json({ message: `Invalid resource identifier: "${err.value}"` });
   }
