@@ -10,6 +10,12 @@ const storage = new CloudinaryStorage({
   },
 });
 
-const uploadDoc = multer({ storage });
+const uploadDoc = multer({
+  storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB max upload size for verification documents
+    files: 1,
+  },
+});
 
 module.exports = uploadDoc;
