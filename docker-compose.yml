@@ -1,39 +1,36 @@
-version: '3.8'
-
 services:
-  # React/Vite frontend
   client:
     build:
       context: ./client
       dockerfile: Dockerfile
-    image: YOUR_DOCKERHUB_USERNAME/food-donation-client:latest
+    image: neelpanchall/food-donation-client:latest
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=http://localhost:5000
+      VITE_API_URL: http://localhost:5000/api
+    command: npm run dev -- --host 0.0.0.0
     depends_on:
       - server
     networks:
       - app-network
 
-  # Express/Node backend
   server:
     build:
       context: ./server
       dockerfile: Dockerfile
-    image: YOUR_DOCKERHUB_USERNAME/food-donation-server:latest
+    image: neelpanchall/food-donation-server:latest
     ports:
       - "5000:5000"
     env_file:
       - ./server/.env
     environment:
-      - NODE_ENV=development
-      - CLIENT_URL=http://localhost:5173
-      - ALLOWED_ORIGINS=http://localhost:5173,http://client:5173
+      PORT: 5000
+      NODE_ENV: development
+      CLIENT_URL: http://localhost:5173
+      ALLOWED_ORIGINS: http://localhost:5173
     networks:
       - app-network
 
 networks:
   app-network:
     driver: bridge
-

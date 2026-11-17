@@ -37,17 +37,17 @@ app.use(
       // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
       if (!origin) return callback(null, true);
 
-      // Check against allowedOrigins list, any *.vercel.app domain, or non-production mode
-      const isVercelDomain = /^https:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/.test(origin);
-      if (allowedOrigins.includes(origin) || isVercelDomain || process.env.NODE_ENV !== 'production') {
-        return callback(null, true);
-      }
-      return callback(new Error(`CORS policy violation: Origin ${origin} not permitted.`));
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-  })
+        // Check against allowedOrigins list, any *.vercel.app domain, or non-production mode
+        const isVercelDomain = /^https:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/.test(origin);
+        if (allowedOrigins.includes(origin) || isVercelDomain || process.env.NODE_ENV !== 'production') {
+          return callback(null, true);
+        }
+        return callback(new Error(`CORS policy violation: Origin ${origin} not permitted.`));
+      },
+      credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+          allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    })
 );
 
 app.use(express.json({ limit: '1mb' }));

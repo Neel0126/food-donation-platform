@@ -8,6 +8,8 @@ const handleError = (error) => {
     // Server responded with an error status
     const data = error.response.data;
     throw new Error(data.message || data.error || 'Something went wrong. Please try again.');
+  } else if (error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout')) {
+    throw new Error('The request timed out. The server is taking too long to respond (e.g. email sending or cold start). Please try again.');
   } else if (error.request) {
     // Request was sent but no response received
     throw new Error(

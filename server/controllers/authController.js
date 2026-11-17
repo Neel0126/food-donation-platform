@@ -398,10 +398,11 @@ const forgotPassword = async (req, res) => {
 
       res.status(200).json({ message: 'Email sent' });
     } catch (err) {
+      console.error('Failed to send reset password email:', err.message || err);
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
       await user.save({ validateBeforeSave: false });
-      return res.status(500).json({ message: 'Email could not be sent' });
+      return res.status(500).json({ message: `Email could not be sent: ${err.message || 'Check mail configuration'}` });
     }
   } catch (error) {
     console.error('Error in forgotPassword:', error);
