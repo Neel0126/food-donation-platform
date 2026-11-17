@@ -96,7 +96,6 @@ const sendEmail = async (options) => {
     console.error(`[Email] ${errorMsg}`);
     throw new Error(errorMsg);
   }
-  const senderName = process.env.FROM_NAME || 'ShareBite';
 
   const message = {
     from: `"${senderName}" <${senderEmail}>`,
