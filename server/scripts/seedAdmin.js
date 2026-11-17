@@ -15,9 +15,10 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
+const crypto = require('crypto');
 const ADMIN_NAME = process.env.ADMIN_NAME || 'Platform Admin';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@sharebite.com';
-const ADMIN_PASS = process.env.ADMIN_PASS || 'Admin@123';
+const ADMIN_PASS = process.env.ADMIN_PASS || crypto.randomBytes(16).toString('hex');
 
 const seedAdmin = async () => {
   try {
@@ -49,8 +50,8 @@ const seedAdmin = async () => {
     console.log(`  Name:  ${admin.name}`);
     console.log(`  Email: ${admin.email}`);
     console.log(`  Role:  ${admin.role}`);
-    console.log(`  Pass:  ${ADMIN_PASS}`);
-    console.log('\n⚠️  Change the default password after first login!');
+    console.log('  Credentials configured successfully.');
+    console.log('\n⚠️  Ensure ADMIN_PASS in environment is kept secure!');
 
     process.exit(0);
   } catch (error) {
