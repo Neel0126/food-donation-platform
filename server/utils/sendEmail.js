@@ -110,10 +110,15 @@ const sendEmail = async (options) => {
     console.log(`[Email] Successfully sent to ${options.email} — MessageID: ${info.messageId}`);
     return info;
   } catch (error) {
+    const isAuthGrantError = error.message?.includes('invalid_grant') || error.code === 'EAUTH';
+    const errorDetail = isAuthGrantError
+      ? 'Email authorization failed (Google OAuth2 refresh token expired or invalid). Recommended: Set GMAIL_PASS (16-char App Password) or RESEND_API_KEY in environment.'
+      : (error.message || 'Unknown email transmission error');
+
     console.error('[Email] Failed to send email:', {
       to: options.email,
       subject: options.subject,
-      error: error.message,
+      error: errorDetail,
       code: error.code,
     });
 
@@ -123,9 +128,10 @@ const sendEmail = async (options) => {
       console.log('Subject:', options.subject);
       console.log('Message:', options.message);
       console.log('-----------------------------------------');
+      return { messageId: 'dev-fallback-id', warning: errorDetail };
     }
-    // Always rethrow so controllers know the email failed and don't report false success
-    throw error;
+    // In production, rethrow with clear actionable error message
+    throw new Error(errorDetail);
   }
 };
 

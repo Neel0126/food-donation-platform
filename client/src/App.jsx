@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
@@ -10,14 +11,12 @@ import NotFoundPage from './pages/auth/NotFoundPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 
-// Dashboard pages
-import DonorDashboard from './pages/dashboards/DonorDashboard';
-import NGODashboard from './pages/dashboards/NGODashboard';
-import VolunteerDashboard from './pages/dashboards/VolunteerDashboard';
-import AdminDashboard from './pages/dashboards/AdminDashboard';
-
-// Profile
-import ProfilePage from './pages/profile/ProfilePage';
+// Lazy-loaded dashboard & profile pages (code-split for optimal production bundle performance)
+const DonorDashboard = lazy(() => import('./pages/dashboards/DonorDashboard'));
+const NGODashboard = lazy(() => import('./pages/dashboards/NGODashboard'));
+const VolunteerDashboard = lazy(() => import('./pages/dashboards/VolunteerDashboard'));
+const AdminDashboard = lazy(() => import('./pages/dashboards/AdminDashboard'));
+const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 
 // Route guards
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -82,23 +81,58 @@ function App() {
 
       {/* Protected routes — require authentication */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route
+          path="/profile"
+          element={
+            <Suspense fallback={<LoadingSpinner fullScreen />}>
+              <ProfilePage />
+            </Suspense>
+          }
+        />
 
         {/* Role-based dashboard routes */}
         <Route element={<RoleBasedRoute allowedRoles={['donor']} />}>
-          <Route path="/donor/dashboard" element={<DonorDashboard />} />
+          <Route
+            path="/donor/dashboard"
+            element={
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <DonorDashboard />
+              </Suspense>
+            }
+          />
         </Route>
 
         <Route element={<RoleBasedRoute allowedRoles={['ngo']} />}>
-          <Route path="/ngo/dashboard" element={<NGODashboard />} />
+          <Route
+            path="/ngo/dashboard"
+            element={
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <NGODashboard />
+              </Suspense>
+            }
+          />
         </Route>
 
         <Route element={<RoleBasedRoute allowedRoles={['volunteer']} />}>
-          <Route path="/volunteer/dashboard" element={<VolunteerDashboard />} />
+          <Route
+            path="/volunteer/dashboard"
+            element={
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <VolunteerDashboard />
+              </Suspense>
+            }
+          />
         </Route>
 
         <Route element={<RoleBasedRoute allowedRoles={['admin']} />}>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <AdminDashboard />
+              </Suspense>
+            }
+          />
         </Route>
       </Route>
 

@@ -223,7 +223,7 @@ const acceptDonation = async (req, res) => {
         ]
       },
       updateDoc,
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!updatedDonation) {

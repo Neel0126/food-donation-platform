@@ -79,7 +79,7 @@ const checkAndExpireDonations = async () => {
             }
           }
         },
-        { new: true }
+        { returnDocument: 'after' }
       );
 
       if (!transitioned) continue; // Another worker instance already transitioned this donation
@@ -129,7 +129,7 @@ const checkAndExpireDonations = async () => {
             }
           }
         },
-        { new: true }
+        { returnDocument: 'after' }
       );
 
       if (!transitioned) continue; // Another worker instance already processed this

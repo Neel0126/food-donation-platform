@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import {
@@ -88,34 +88,7 @@ const NGODashboard = () => {
   const [gettingLocation, setGettingLocation] = useState(false);
   const [maxDistance, setMaxDistance] = useState(10); // km
 
-  useEffect(() => {
-    if (locationScope === 'nearby' && !userLocation) return;
-    fetchData();
-  }, [locationScope, userLocation, maxDistance]);
-
-  // Real-time Auto-poll: Updates volunteer live location every 3 seconds while tracking modal is open
-  useEffect(() => {
-    if (!isTrackingModalOpen || !selectedDonationForTracking) return;
-
-    const intervalId = setInterval(async () => {
-      try {
-        const accepted = await getMyAcceptedDonations();
-        if (Array.isArray(accepted)) {
-          setMyDonations(accepted);
-          const current = accepted.find((d) => d._id === selectedDonationForTracking._id);
-          if (current) {
-            setSelectedDonationForTracking(current);
-          }
-        }
-      } catch (err) {
-        console.error('Error polling volunteer location:', err);
-      }
-    }, 3000);
-
-    return () => clearInterval(intervalId);
-  }, [isTrackingModalOpen, selectedDonationForTracking?._id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       const params = {};
@@ -148,7 +121,12 @@ const NGODashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [locationScope, userLocation, maxDistance, searchQuery]);
+
+  useEffect(() => {
+    if (locationScope === 'nearby' && !userLocation) return;
+    fetchData();
+  }, [locationScope, userLocation, maxDistance, fetchData]);
 
   const handleAddVolunteer = async (e) => {
     e.preventDefault();

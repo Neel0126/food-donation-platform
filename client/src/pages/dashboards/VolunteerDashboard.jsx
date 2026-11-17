@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import {
@@ -96,9 +96,39 @@ const VolunteerDashboard = () => {
   const [vehicleType, setVehicleType] = useState('bike');
   const [vehicleNumber, setVehicleNumber] = useState('');
 
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const params = {};
+      if (searchQuery.trim()) {
+        params.search = searchQuery.trim();
+      }
+
+      const [profRes, statsRes, availRes, tasksRes] = await Promise.all([
+        getVolunteerProfile().catch(() => null),
+        getVolunteerStats().catch(() => null),
+        getAvailableTasks(params).catch(() => []),
+        getMyTasks('all').catch(() => []),
+      ]);
+
+      if (profRes) {
+        setProfile(profRes.profile);
+        setVehicleType(profRes.profile?.vehicleType || 'bike');
+        setVehicleNumber(profRes.profile?.vehicleNumber || '');
+      }
+      if (statsRes?.stats) setStats(statsRes.stats);
+      setAvailableTasks(availRes || []);
+      setMyTasks(tasksRes || []);
+    } catch (err) {
+      console.error('Error loading volunteer dashboard:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [searchQuery]);
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   // Broadcast real-time volunteer GPS coordinates for active delivery tasks
   useEffect(() => {
@@ -140,36 +170,6 @@ const VolunteerDashboard = () => {
       }
     };
   }, [myTasks]);
-
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      const params = {};
-      if (searchQuery.trim()) {
-        params.search = searchQuery.trim();
-      }
-
-      const [profRes, statsRes, availRes, tasksRes] = await Promise.all([
-        getVolunteerProfile().catch(() => null),
-        getVolunteerStats().catch(() => null),
-        getAvailableTasks(params).catch(() => []),
-        getMyTasks('all').catch(() => []),
-      ]);
-
-      if (profRes) {
-        setProfile(profRes.profile);
-        setVehicleType(profRes.profile?.vehicleType || 'bike');
-        setVehicleNumber(profRes.profile?.vehicleNumber || '');
-      }
-      if (statsRes?.stats) setStats(statsRes.stats);
-      setAvailableTasks(availRes || []);
-      setMyTasks(tasksRes || []);
-    } catch (err) {
-      console.error('Error loading volunteer dashboard:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();

@@ -40,18 +40,33 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
+      // Pre-hydrate user state from cached localStorage to avoid UI flickers
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch {
+          // ignore corrupted JSON
+        }
+      }
+
       try {
         const data = await authService.getProfile();
-        // The backend may return { user: {...} } or the user object directly
         const userData = data.user || data;
         setUser(userData);
         setToken(storedToken);
-      } catch {
-        // Token invalid or backend unreachable — clear stored data
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setToken(null);
-        setUser(null);
+        localStorage.setItem('user', JSON.stringify(userData));
+      } catch (err) {
+        // Only clear storage and logout if server explicitly answered with 401 Unauthorized
+        // For cold starts / timeouts / network failures, preserve the local cached session
+        if (err?.message?.includes('401') || err?.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setToken(null);
+          setUser(null);
+        } else {
+          console.warn('[AuthContext] Backend profile verification deferred:', err.message);
+        }
       } finally {
         setLoading(false);
       }

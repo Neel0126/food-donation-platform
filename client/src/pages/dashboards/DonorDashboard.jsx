@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import DashboardLayout from '../../components/layout/DashboardLayout';
@@ -63,12 +63,7 @@ const DonorDashboard = () => {
   const [ngoCategoryFilter, setNgoCategoryFilter] = useState('all');
   const [selectedNgoModal, setSelectedNgoModal] = useState(null);
 
-  useEffect(() => {
-    fetchDonations();
-    fetchNgos();
-  }, []);
-
-  const fetchDonations = async () => {
+  const fetchDonations = useCallback(async () => {
     try {
       setIsLoading(true);
       setError('');
@@ -80,9 +75,9 @@ const DonorDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const fetchNgos = async () => {
+  const fetchNgos = useCallback(async () => {
     try {
       setIsNgosLoading(true);
       const data = await getVerifiedNgos();
@@ -142,7 +137,12 @@ const DonorDashboard = () => {
     } finally {
       setIsNgosLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchDonations();
+    fetchNgos();
+  }, [fetchDonations, fetchNgos]);
 
   const showFeedback = (text, type = 'success') => {
     setFeedback({ text, type });

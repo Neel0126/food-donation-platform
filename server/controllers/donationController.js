@@ -260,7 +260,7 @@ const cancelDonation = async (req, res) => {
           timeline: { status: 'cancelled', description: 'Donation cancelled by donor', time: new Date() }
         }
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!updatedDonation) {

@@ -1,8 +1,13 @@
 import axios from 'axios';
 
+// Safe base URL resolution — trims trailing slashes and guarantees /api suffix
+const rawBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const cleanBaseUrl = rawBaseUrl.replace(/\/+$/, '');
+const normalizedBaseUrl = cleanBaseUrl.endsWith('/api') ? cleanBaseUrl : `${cleanBaseUrl}/api`;
+
 // Create Axios instance with base URL from environment
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+  baseURL: normalizedBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },

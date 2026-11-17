@@ -28,6 +28,8 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   'http://localhost:5173',
   'http://127.0.0.1:5173',
+  'http://localhost:4173',
+  'http://127.0.0.1:4173',
   'http://localhost:3000'
 ].filter(Boolean);
 
@@ -37,17 +39,18 @@ app.use(
       // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
       if (!origin) return callback(null, true);
 
-        // Check against allowedOrigins list, any *.vercel.app domain, or non-production mode
-        const isVercelDomain = /^https:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/.test(origin);
-        if (allowedOrigins.includes(origin) || isVercelDomain || process.env.NODE_ENV !== 'production') {
-          return callback(null, true);
-        }
-        return callback(new Error(`CORS policy violation: Origin ${origin} not permitted.`));
-      },
-      credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-          allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-    })
+      // Check against allowedOrigins list, any *.vercel.app domain, *.onrender.com domain, or non-production mode
+      const isVercelDomain = /^https:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/.test(origin);
+      const isRenderDomain = /^https:\/\/([a-zA-Z0-9-]+\.)*onrender\.com$/.test(origin);
+      if (allowedOrigins.includes(origin) || isVercelDomain || isRenderDomain || process.env.NODE_ENV !== 'production') {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS policy violation: Origin ${origin} not permitted.`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  })
 );
 
 app.use(express.json({ limit: '1mb' }));
@@ -105,6 +108,9 @@ app.use((req, res, next) => {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
+  if (err.message && err.message.includes('CORS policy violation')) {
+    return res.status(403).json({ message: err.message });
+  }
   if (err.type === 'entity.too.large') {
     return res.status(413).json({ message: 'Payload too large. Maximum allowed size is 1MB.' });
   }

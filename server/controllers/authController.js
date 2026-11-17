@@ -373,7 +373,13 @@ const forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // Create reset url pointing to frontend client domain
-    const frontendBase = process.env.CLIENT_URL || `${req.protocol}://${req.get('host').replace('3001', '5173')}`;
+    let frontendBase = process.env.CLIENT_URL;
+    if (!frontendBase || (frontendBase.includes('localhost') && req.headers.origin && !req.headers.origin.includes('localhost'))) {
+      frontendBase = req.headers.origin;
+    }
+    if (!frontendBase) {
+      frontendBase = `${req.protocol}://${req.get('host').replace('3001', '5173')}`;
+    }
     const resetUrl = `${frontendBase.replace(/\/$/, '')}/reset-password/${resetToken}`;
 
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;

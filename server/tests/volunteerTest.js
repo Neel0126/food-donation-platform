@@ -33,6 +33,9 @@ async function runTests() {
     const donorEmail = `donor_${timestamp}@test.com`;
     const ngoEmail = `ngo_${timestamp}@test.com`;
     const volunteerEmail = `vol_${timestamp}@test.com`;
+    const volPhone = `98${String(timestamp).slice(-8)}`;
+    const donorPhone = `97${String(timestamp).slice(-8)}`;
+    const ngoPhone = `96${String(timestamp).slice(-8)}`;
 
     // 2. Register Volunteer
     console.log('\n--- 1. Testing Volunteer Registration & Profile ---');
@@ -43,7 +46,7 @@ async function runTests() {
         name: 'Alex Volunteer',
         email: volunteerEmail,
         password: 'password123',
-        phone: '9876543210',
+        phone: volPhone,
         role: 'volunteer',
         address: '123 Volunteer St, City',
         vehicleType: 'bike',
@@ -111,7 +114,7 @@ async function runTests() {
         name: 'John Donor',
         email: donorEmail,
         password: 'password123',
-        phone: '9123456780',
+        phone: donorPhone,
         role: 'donor',
         address: '456 Donor Ave, Downtown'
       })
@@ -127,7 +130,7 @@ async function runTests() {
         name: 'Helping NGO Leader',
         email: ngoEmail,
         password: 'password123',
-        phone: '9888877776',
+        phone: ngoPhone,
         role: 'ngo',
         organizationName: 'Helping Hands Foundation',
         registrationNumber: `REG-${timestamp}`,

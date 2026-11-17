@@ -409,7 +409,7 @@ const acceptTask = async (req, res) => {
           timeline: { status: 'assigned', description: 'Volunteer accepted the pickup task', time: new Date() }
         }
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!updatedTask) {
